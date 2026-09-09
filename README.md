@@ -29,3 +29,20 @@ Idées d'améliorations :
 -> + de pourcentage de chance d'avoir des projectiles verts
 
 Attaque spéciale de boss -> Plus d'effet des projectiles pdt 1.2 secondes (saucisses)
+
+=> SALLE Tuto pour première connexion
+
+=> Système de stats pour la fin.
+
+=> Spell : ignorer ou switch
+
+SCENES : - Menu Home
+         - Play
+         - Settings
+         - (Scenes pour expliquer le lore)
+         - Game over screen
+         - Pause (play / restrt / options / title-screen)
+         - Interface (inventaire) spell / upgrades
+         - End screen
+
+
