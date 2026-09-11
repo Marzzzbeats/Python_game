@@ -75,3 +75,26 @@ scene :
     - scene pause (avec restart, option, home)
 
 
+
+
+
+
+
+
+project/
+│
+├── main.py
+├── game.py
+│
+├── scenes/
+│   ├── menu.py
+│   └── game_scene.py
+│
+├── entities/
+│   ├── player.py
+│   ├── enemy.py
+│   └── bullet.py
+│
+└── assets/
+    ├── images/
+    └── sounds/
