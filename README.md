@@ -46,3 +46,7 @@ SCENES : - Menu Home
          - End screen
 
 
+ARCHI boucle main : 
+    -> Handle events
+    -> Update
+    -> Draw
