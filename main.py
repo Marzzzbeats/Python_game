@@ -1,60 +1,76 @@
 import pygame as pg
+import player
+import ennemy
 
 pg.init()
 screen = pg.display.set_mode((800, 600))
 pg.display.set_caption('Test')
 clock = pg.time.Clock()
-dt = clock.tick(60) / 1000 #Temps entre chaque frame (60 fps / 1000)
 running = True
-player_x = 100
-player_y = 100
-speed = 75 #Gère la vitesse / célocité du perso
+
+player1 = player.Player("Simon", 100, 100)
+ennemy1 = ennemy.Ennemy("Mechant", 450, 300, 30, 30, 30)
 
 
-def handle_events(running:bool) -> list:
+def handle_events() -> list:
     """Récupère les différents evenements (boutons pressés etc...)"""
     keys = pg.key.get_pressed()
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            running = False
     return keys
 
-def update(dt:float, keys:list):
+def update(dt:float, keys:list, player1:player.Player, ennemy1:ennemy.Ennemy):
     """Update l'état du jeu en fonction des évenements"""
     if keys[pg.K_RIGHT]:
-        player_x += dt*speed
+        player1.mooveRight(dt)
     if keys[pg.K_LEFT]:
-        player_x-= dt*speed
+        player1.mooveLeft(dt)
     if keys[pg.K_DOWN]:
-        player_y+= dt*speed
+        player1.mooveDown(dt)
     if keys[pg.K_UP]:
-        player_y-= dt*speed
-    
-    
-    if player_y < 0 :
-        player_y = 0
-    if player_y > 550:
-        player_y = 550
-    if player_x < 0 :
-        player_x = 0
-    if player_x > 750 :
-        player_x = 750  
+        player1.mooveUp(dt)
+
+    #Mise en place des barières
+    if player1.rec.y < 0 :
+        player1.rec.y = 0
+    if player1.rec.y > 550:
+        player1.rec.y = 550
+    if player1.rec.x < 0 :
+        player1.rec.x = 0
+    if player1.rec.x > 750 :
+        player1.rec.x = 750  
+
+    if player1.rec.colliderect(ennemy1.rec):
+        ennemy1.attack()
+        player1.hpLoss(1)
+        print(player1.hp)
+        player1.isDead()
 
 
-def draw():
+def draw(player1:player.Player):
     """Gère l'affichage des modifications à l'écran """
-    print((player_x, player_y))
     screen.fill('purple')
-    pg.draw.rect(screen, (255,0,0), (player_x, player_y, 50, 50))
+    pg.draw.rect(screen, (255,0,0), ennemy1.rec)
+    if player1.alive:
+        screen.blit(player1.image, player1.rec)
+        screen.blit(player1.displayHp(), (20,20))
+    else :
+        font = pg.font.Font(None, 36)
+        text = font.render("GAME OVER", True, (255,0,0))
+        screen.blit(text, (20,20))
     pg.display.flip()
 
     
 while running :
 
-    keys = handle_events(running)
+    dt = clock.tick(60) / 1000 #Temps entre chaque frame (60 fps / 1000)
 
-    update(dt, keys)
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
 
-    draw()
+    keys = handle_events()
+
+    update(dt, keys, player1, ennemy1)
+
+    draw(player1)
 
 pg.quit()
