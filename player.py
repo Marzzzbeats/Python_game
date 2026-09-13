@@ -1,5 +1,6 @@
 import pygame as pg
 import beings
+import attacks
 
 class Player(beings.Beings):
 
@@ -9,22 +10,15 @@ class Player(beings.Beings):
         self.image = pg.image.load('./assets/simon.png').convert_alpha()
         self.image = pg.transform.scale(self.image, (26.25, 80.5))
 
-    def mooveUp(self, dt:float):
-        """Bouge le player vers le haut"""
-        self.rec.y -= dt*self.speed
-
-    def mooveDown(self, dt:float):
-        """Bouge le player vers le bas"""
-        self.rec.y += dt*self.speed
-
-    def mooveLeft(self, dt:float):
-        """Bouge vers la gauche"""
-        self.rec.x -= dt*self.speed
-
-    def mooveRight(self, dt:float):
-        """Bouge le player vers la droite"""
-        self.rec.x += dt*self.speed
-
+    def moove(self, dt, dir:pg.Vector2):
+        self.direction = dir
+        if self.direction.length()>0:
+              self.direction.normalize()
+        velocity = self.direction * self.speed
+        self.position += velocity * dt
+        self.rec.x = self.position.x
+        self.rec.y = self.position.y
+         
     def displayHp(self):
         font = pg.font.Font(None, 36)
         if self.alive:
@@ -41,6 +35,9 @@ class Player(beings.Beings):
         text2 = font.render(text, True, (255,0,0))
         return text2
 
+    def shoot(self, projectiles):
+        projectile = attacks.Projectile(self.position.x, self.position.y, 3)
+        projectiles.add(projectile)
 
     
     
