@@ -5,7 +5,7 @@ class Beings():
     def __init__(self, name:str, x:float, y:float, sizex:float, sizey:float, hp:int):
         self.position = pg.Vector2(x,y)
         self.direction = pg.Vector2(0,0)
-        self.rec = pg.Rect(self.position.x, self.position.y, sizex, sizey)
+        self.rect = pg.Rect(self.position.x, self.position.y, sizex, sizey)
         self.name = name
         self.alive = True
         self.hp = hp

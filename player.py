@@ -9,15 +9,17 @@ class Player(beings.Beings):
         self.speed = 300
         self.image = pg.image.load('./assets/simon.png').convert_alpha()
         self.image = pg.transform.scale(self.image, (26.25, 80.5))
+        self.shooting_rate = 5 #shoot par secondes
+        self.shoot_timer = 1/self.shooting_rate
 
     def moove(self, dt, dir:pg.Vector2):
         self.direction = dir
         if self.direction.length()>0:
-              self.direction.normalize()
+              self.direction = self.direction.normalize()
         velocity = self.direction * self.speed
         self.position += velocity * dt
-        self.rec.x = self.position.x
-        self.rec.y = self.position.y
+        self.rect.x = self.position.x
+        self.rect.y = self.position.y
          
     def displayHp(self):
         font = pg.font.Font(None, 36)
@@ -35,9 +37,14 @@ class Player(beings.Beings):
         text2 = font.render(text, True, (255,0,0))
         return text2
 
-    def shoot(self, projectiles):
-        projectile = attacks.Projectile(self.position.x, self.position.y, 3)
-        projectiles.add(projectile)
+    def shoot(self, projectiles, dt):
+        self.shoot_timer += dt
+        if self.shoot_timer >= 1/self.shooting_rate:  
+            projectile = attacks.Projectile(self.position.x, self.position.y, 3)
+            projectiles.add(projectile)
+            self.shoot_timer = 0
+        print(self.shoot_timer)
+        
 
     
     

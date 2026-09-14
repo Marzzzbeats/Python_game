@@ -17,9 +17,8 @@ class Projectile(pg.sprite.Sprite):
     def update(self, dt):
         self.position += self.velocity * dt
         self.rect.center = self.position 
-        print("ok")
 
-        if self.rect.y < 0 :
+        if self.rect.y < 0 or self.ttl <= 0:
             self.kill()
 
     
