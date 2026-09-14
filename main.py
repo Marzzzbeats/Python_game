@@ -13,7 +13,8 @@ player1 = player.Player("Simon", 100, 100)
 ennemies = pg.sprite.Group()
 ennemy1 = ennemy.Ennemy("Mechant", 450, 300, 30, 30, 30)
 ennemies.add(ennemy1)
-projectiles = pg.sprite.Group() #crée un groupe pour les projectiles
+projectiles_player = pg.sprite.Group() #crée un groupe pour les projectiles
+projectiles_ennemy = pg.sprite.Group()
 
 
 def handle_events() -> list:
@@ -21,41 +22,29 @@ def handle_events() -> list:
     keys = pg.key.get_pressed()
     return keys
 
-def update(dt:float, keys:list, player1:player.Player, ennemies, projectiles = projectiles):
+def update(dt:float, keys:list, player1:player.Player, ennemies, projectiles_player = projectiles_player, projectiles_ennemy = projectiles_ennemy):
     """Update l'état du jeu en fonction des évenements"""
-    player1.direction = pg.Vector2(0,0)
-
-    if keys[pg.K_RIGHT]:
-        player1.moove(dt, pg.Vector2(1,0))
-    if keys[pg.K_LEFT]:
-        player1.moove(dt, pg.Vector2(-1,0))
-    if keys[pg.K_DOWN]:
-        player1.moove(dt, pg.Vector2(0,1))  
-    if keys[pg.K_UP]:
-        player1.moove(dt, pg.Vector2(0,-1))
-    if keys[pg.K_SPACE]:
-        player1.shoot(projectiles, dt)
-
-
-    #Mise en place des barières
-    if player1.rect.y < 0 :
-        player1.rect.y = 0
-    if player1.rect.y > 550:
-        player1.rect.y = 550
-    if player1.rect.x < 0 :
-        player1.rect.x = 0
-    if player1.rect.x > 750 :
-        player1.rect.x = 750  
+        
 
     collision = pg.sprite.spritecollide(player1, ennemies, False)
 
     for ennemy in collision:
         ennemy.attack()
         player1.hpLoss(ennemy.dammage)
+        player1.invulnerability()
         print(player1.hp)
         player1.isDead()
 
-    collisions = pg.sprite.groupcollide(projectiles,ennemies,False,False)
+    collision_player_projectile = pg.sprite.spritecollide(player1, projectiles_ennemy, False)
+
+    for proj in collision_player_projectile :
+        if not player1.touched :
+            player1.hpLoss(proj.dammage)
+            player1.invulnerability()
+            print(player1.hp)
+            player1.isDead()
+
+    collisions = pg.sprite.groupcollide(projectiles_player,ennemies,False,False)
 
     for projectile, hit_enemies in collisions.items():
         for enemy in hit_enemies:
@@ -63,18 +52,22 @@ def update(dt:float, keys:list, player1:player.Player, ennemies, projectiles = p
             enemy.isDead()
             projectile.ttl -=1
 
-    ennemies.update()
+    player1.update(keys, projectiles_player, dt)
+
+    ennemies.update(dt, projectiles_ennemy)
+    projectiles_ennemy.update(dt)
     
 
 
-def draw(player1:player.Player, projectiles = projectiles, ennemies = ennemies):
+def draw(player1:player.Player, projectiles_player = projectiles_player, ennemies = ennemies, projectiles_ennemy = projectiles_ennemy):
     """Gère l'affichage des modifications à l'écran """
     screen.fill('purple')
     ennemies.draw(screen)
+    projectiles_ennemy.draw(screen)
     if player1.alive:
         screen.blit(player1.image, player1.rect)
         screen.blit(player1.displayHp(), (20,20))
-        projectiles.draw(screen)
+        projectiles_player.draw(screen)
     else :
         font = pg.font.Font(None, 36)
         text = font.render("GAME OVER", True, (255,0,0))
@@ -93,8 +86,9 @@ while running :
     keys = handle_events()
 
     update(dt, keys, player1, ennemies)
-    projectiles.update(dt)
+    projectiles_player.update(dt)
 
     draw(player1)
 
 pg.quit()
+
