@@ -3,10 +3,10 @@ import pygame
 
 class Projectile(pygame.sprite.Sprite):
 
-    def __init__(self, screen, pos, direction, speed, damage, image):
+    def __init__(self, play_surface, pos, direction, speed, damage, image):
         super().__init__()
 
-        self.screen = screen
+        self.screen = play_surface
 
         self.pos = pygame.Vector2(pos)
         self.direction = pygame.Vector2(direction).normalize()

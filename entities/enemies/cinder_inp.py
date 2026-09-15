@@ -9,7 +9,7 @@ class CinderImp(Enemy):
         image = pygame.image.load("assets/enemies/cinder_imp.png").convert_alpha()
         image = pygame.transform.scale_by(image, 0.6)
 
-        super().__init__(gameplay.game, pos, image, speed, damage, max_life)
+        super().__init__(gameplay, pos, image, speed, damage, max_life)
 
 
     def find_player_direction(self, player):
@@ -26,16 +26,15 @@ class CinderImp(Enemy):
 
     def shoot(self):
         projectile = BallProjectile(
-            screen=self.screen,
+            screen=self.gameplay.play_surface,
             pos=self.rect.center,
             direction=self.find_player_direction(self.gameplay.player),
-            speed=20,
+            speed=10,
             damage=1
         )
 
         self.gameplay.all_projectiles.add(projectile)
         self.enemy_projectiles.add(projectile)
-        print("shoot")
 
 
     def update(self, dt):

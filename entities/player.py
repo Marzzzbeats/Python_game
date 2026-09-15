@@ -5,10 +5,10 @@ from entities.projectiles.player_projectiles.base import StraightProjectile
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, screen, all_projectiles):
+    def __init__(self, play_surface, all_projectiles):
         super().__init__()
 
-        self.screen = screen
+        self.play_surface = play_surface
         self.all_projectiles = all_projectiles
         self.player_projectiles = pygame.sprite.Group()
         if pygame.joystick.get_count() > 0:
@@ -45,11 +45,10 @@ class Player(pygame.sprite.Sprite):
 
         self.image = self.sprites[self.state][self.sprite_direction][self.frame]
         self.rect = self.image.get_rect()
-        self.rect.center = self.screen.get_rect().center
+        self.rect.center = self.play_surface.get_rect().center
 
         self.hitbox = self.rect.copy()
         self.hitbox.scale_by_ip(0.5)
-
 
 
     def normalize_sprite(self, image, target_height=90, canvas_size=256):
@@ -155,8 +154,8 @@ class Player(pygame.sprite.Sprite):
 
 
     def in_screen(self, x, y):
-        future_rect = self.rect.move(x, y)
-        return self.screen.get_rect().contains(future_rect)
+        future_rect = self.hitbox.move(x, y)
+        return self.play_surface.get_rect().contains(future_rect)
 
 
     def move(self, x, y):
@@ -168,7 +167,7 @@ class Player(pygame.sprite.Sprite):
         self.state = "cast"
 
         projectile = StraightProjectile(
-            screen=self.screen,
+            screen=self.play_surface,
             pos=self.rect.center,
             direction=self.look_direction,
             speed=20,
@@ -278,9 +277,9 @@ class Player(pygame.sprite.Sprite):
 
 
     def draw(self):
-        pygame.draw.rect(self.screen,"green",self.rect,2)
-        pygame.draw.rect(self.screen,"red",self.hitbox,2)
+        pygame.draw.rect(self.play_surface,"green",self.rect,2)
+        pygame.draw.rect(self.play_surface,"red",self.hitbox,2)
         for proj in self.player_projectiles:
-            pygame.draw.rect(self.screen, "blue", proj.rect,2)
-            pygame.draw.rect(self.screen,"red", proj.hitbox,2)
-        self.screen.blit(self.image, self.rect)
+            pygame.draw.rect(self.play_surface, "blue", proj.rect,2)
+            pygame.draw.rect(self.play_surface,"red", proj.hitbox,2)
+        self.play_surface.blit(self.image, self.rect)

@@ -3,11 +3,11 @@ import pygame
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, game, pos, image, speed, damage, max_hp):
+    def __init__(self, gameplay, pos, image, speed, damage, max_hp):
         super().__init__()
 
-        self.game = game
-        self.screen = game.screen
+        self.gameplay = gameplay
+        self.screen = gameplay.play_surface
         self.enemy_projectiles = pygame.sprite.Group()
 
         self.speed = speed

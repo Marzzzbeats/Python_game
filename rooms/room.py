@@ -33,7 +33,7 @@ class Room:
 
 
     def draw(self):
-        self.all_enemies.draw(self.gameplay.game.screen)
+        self.all_enemies.draw(self.gameplay.play_surface)
 
         for enemy in self.all_enemies:
             pygame.draw.rect(
