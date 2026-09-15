@@ -238,7 +238,11 @@ class Player(pygame.sprite.Sprite):
 
 
     def handle_inputs(self, keys, dt):
-        shoot_pressed = (keys[pygame.K_l] or self.joystick.get_button(0))
+        if self.joystick:
+            shoot_pressed = (keys[pygame.K_l] or self.joystick.get_button(0))
+        else:
+            shoot_pressed = (keys[pygame.K_l])
+            
         move_dir = self.get_move_direction(keys)
 
         if shoot_pressed:
