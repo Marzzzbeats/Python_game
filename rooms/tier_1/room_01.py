@@ -10,5 +10,5 @@ class RoomT1_01(Room):
 
 
         image = pygame.image.load("assets/enemies/cinder_imp.png").convert_alpha()
-        enemy1 = CinderImp(gameplay, (100,100), image, 10, 1, 5)
+        enemy1 = CinderImp(gameplay, (300,200), image, 10, 1, 5)
         self.all_enemies.add(enemy1)

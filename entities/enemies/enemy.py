@@ -7,7 +7,6 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__()
 
         self.gameplay = gameplay
-        self.screen = gameplay.play_surface
         self.enemy_projectiles = pygame.sprite.Group()
 
         self.speed = speed
@@ -34,4 +33,4 @@ class Enemy(pygame.sprite.Sprite):
 
 
     def draw(self):
-        self.screen.blit(self.image, self.rect)
+        self.gameplay.play_surface.blit(self.image, self.rect)

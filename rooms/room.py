@@ -11,6 +11,9 @@ class Room:
     def __init__(self, gameplay):
         self.gameplay = gameplay
         self.all_enemies = pygame.sprite.Group()
+        self.background = pygame.image.load("assets/rooms/default.png").convert_alpha()
+        play_surface = self.gameplay.play_surface
+        self.background = pygame.transform.scale(self.background, (play_surface.get_width(), play_surface.get_height()))
 
 
     def check_collisions(self):
@@ -33,17 +36,18 @@ class Room:
 
 
     def draw(self):
-        self.all_enemies.draw(self.gameplay.play_surface)
+        self.gameplay.play_surface.blit(self.background, (0,0))
 
+        self.all_enemies.draw(self.gameplay.play_surface)
         for enemy in self.all_enemies:
             pygame.draw.rect(
-                self.gameplay.game.screen,
+                self.gameplay.play_surface,
                 "yellow",
                 enemy.rect,
                 2
             )
             pygame.draw.rect(
-                self.gameplay.game.screen,
+                self.gameplay.play_surface,
                 "red",
                 enemy.hitbox,
                 2

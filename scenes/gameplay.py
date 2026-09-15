@@ -9,28 +9,32 @@ class Gameplay(Scene):
         super().__init__(game)
 
 
-        GAME_WIDTH = game.screen.get_width() * 0.95
-        GAME_HEIGHT =  game.screen.get_height() * 0.70
+        GAME_WIDTH = game.screen.get_width() * 0.975
+        GAME_HEIGHT =  game.screen.get_height() * 0.75
         self.play_surface = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
         
         self.all_projectiles = pygame.sprite.Group()
         self.player = Player(self.play_surface, self.all_projectiles)
 
+        self.health_bar_frame_height = 150
         self.health_bar_frame = pygame.image.load("assets/player/health_bar.png").convert_alpha()
-        self.health_bar_frame = pygame.transform.scale(self.health_bar_frame, (600, 200))
+        self.health_bar_frame = pygame.transform.scale(self.health_bar_frame, (self.health_bar_frame_height*3, self.health_bar_frame_height))
 
         self.room = ROOMS[1][0](self)
 
 
     def draw_health_bar(self, screen):
-        x = 10
-        y = self.game.screen.get_height() - 200
+        offset = 50
+        x = 10 + offset
+        y = self.game.screen.get_height() - self.health_bar_frame_height - offset
         max_width = 200
         bar_height = 20
         health_ratio = self.player.hp / self.player.max_hp
         current_width = max_width * health_ratio
-        screen.blit(self.health_bar_frame, (x - 5, y - 5))
-        pygame.draw.rect(screen, "red",(x, y, current_width, bar_height))
+        screen.blit(self.health_bar_frame, (x, y))
+        rect = pygame.Rect(x, y, current_width, bar_height)
+        pygame.draw.rect(screen, "red", rect)
+        rect.center = self.health_bar_frame.get_rect().center
 
 
     def handle_events(self, event):
@@ -50,7 +54,7 @@ class Gameplay(Scene):
         pygame.draw.rect(
             self.play_surface,
             "white",
-            play_rect = self.play_surface.get_rect(),
+            self.play_surface.get_rect(),
             width=4
         )
 
@@ -58,6 +62,6 @@ class Gameplay(Scene):
         self.player.draw()
         self.all_projectiles.draw(self.play_surface)
 
-        self.game.screen.blit(self.play_surface, (self.game.screen.get_width() * 0.025, self.game.screen.get_height() * 0.05))
+        self.game.screen.blit(self.play_surface, (self.game.screen.get_width() * 0.0125, self.game.screen.get_height() * 0.025))
     
         self.draw_health_bar(self.game.screen)
