@@ -11,7 +11,10 @@ class Player(pygame.sprite.Sprite):
         self.screen = screen
         self.all_projectiles = all_projectiles
         self.player_projectiles = pygame.sprite.Group()
-        self.joystick = pygame.joystick.Joystick(0)
+        if pygame.joystick.get_count() > 0:
+            self.joystick = pygame.joystick.Joystick(0)
+        else:
+            self.joystick = None
 
         self.base_speed = 600
         self.speed = self.base_speed
@@ -190,8 +193,11 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_s]:
             keyboard_dir.y += 1
-
-        joystick_dir = pygame.Vector2(self.joystick.get_axis(0),self.joystick.get_axis(1))
+        
+        try:
+            joystick_dir = pygame.Vector2(self.joystick.get_axis(0),self.joystick.get_axis(1))
+        except AttributeError:
+            joystick_dir = pygame.Vector2(0, 0)
 
         if abs(joystick_dir.x) < 0.30:
             joystick_dir.x = 0
