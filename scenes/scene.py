@@ -10,4 +10,6 @@ class Scene:
     def handle_events(self, event):
         if event.type == pygame.QUIT:
             self.game.running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            print(event.pos)
 

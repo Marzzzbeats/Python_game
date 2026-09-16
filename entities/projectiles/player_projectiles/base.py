@@ -13,6 +13,10 @@ class StraightProjectile(Projectile):
         image = pygame.transform.rotate(image, angle)
         super().__init__(screen, pos, direction, speed, damage, image)
 
+
+    def scale_hitbox(self):
+            self.hitbox.scale_by_ip(0.5)
+
     def move(self):
         self.pos += self.direction * self.speed
         self.rect.center = self.pos

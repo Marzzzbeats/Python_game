@@ -40,15 +40,9 @@ class Room:
 
         self.all_enemies.draw(self.gameplay.play_surface)
         for enemy in self.all_enemies:
-            pygame.draw.rect(
-                self.gameplay.play_surface,
-                "yellow",
-                enemy.rect,
-                2
-            )
-            pygame.draw.rect(
-                self.gameplay.play_surface,
-                "red",
-                enemy.hitbox,
-                2
-            )
+            # pygame.draw.rect(self.gameplay.play_surface,"yellow",enemy.rect,2)
+            pygame.draw.rect(self.gameplay.play_surface,"red", enemy.hitbox,2)
+            
+            for proj in enemy.enemy_projectiles:
+                # pygame.draw.rect(self.play_surface, "blue", proj.rect,2)
+                pygame.draw.rect(self.gameplay.play_surface, "red", proj.hitbox,2)

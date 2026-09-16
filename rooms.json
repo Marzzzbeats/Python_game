@@ -1,0 +1,198 @@
+{
+    "tiers": {
+        "1": {
+            "rooms": [
+                {
+                    "id": 1,
+                    "enemies": [
+                        {
+                            "class": "CinderImp",
+                            "count": 3
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "enemies": [
+                        {
+                            "class": "CinderImp",
+                            "count": 2
+                        },
+                        {
+                            "class": "Gorehound",
+                            "count": 2
+                        }
+                    ]
+                },
+                {
+                    "id": 3,
+                    "enemies": [
+                        {
+                            "class": "Bloodwing",
+                            "count": 2
+                        },
+                        {
+                            "class": "CinderImp",
+                            "count": 2
+                        }
+                    ]
+                },
+                {
+                    "id": 4,
+                    "enemies": [
+                        {
+                            "class": "Spikeborn",
+                            "count": 1
+                        },
+                        {
+                            "class": "Gorehound",
+                            "count": 2
+                        },
+                        {
+                            "class": "CinderImp",
+                            "count": 2
+                        }
+                    ]
+                }
+            ]
+        },
+
+        "2": {
+            "rooms": [
+                {
+                    "id": 1,
+                    "enemies": [
+                        {
+                            "class": "RicochetImp",
+                            "count": 2
+                        },
+                        {
+                            "class": "Bloodwing",
+                            "count": 2
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "enemies": [
+                        {
+                            "class": "SeekerEye",
+                            "count": 2
+                        },
+                        {
+                            "class": "Gorehound",
+                            "count": 3
+                        }
+                    ]
+                },
+                {
+                    "id": 3,
+                    "enemies": [
+                        {
+                            "class": "Hellwatcher",
+                            "count": 2
+                        },
+                        {
+                            "class": "RicochetImp",
+                            "count": 2
+                        },
+                        {
+                            "class": "CinderImp",
+                            "count": 2
+                        }
+                    ]
+                },
+                {
+                    "id": 4,
+                    "enemies": [
+                        {
+                            "class": "EchoShade",
+                            "count": 2
+                        },
+                        {
+                            "class": "Skullbomb",
+                            "count": 2
+                        },
+                        {
+                            "class": "SeekerEye",
+                            "count": 1
+                        }
+                    ]
+                }
+            ]
+        },
+
+        "3": {
+            "rooms": [
+                {
+                    "id": 1,
+                    "enemies": [
+                        {
+                            "class": "HellButcher",
+                            "count": 2
+                        },
+                        {
+                            "class": "Hellspout",
+                            "count": 2
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "enemies": [
+                        {
+                            "class": "MagmaBrute",
+                            "count": 1
+                        },
+                        {
+                            "class": "BlightBrewer",
+                            "count": 2
+                        },
+                        {
+                            "class": "Gorehound",
+                            "count": 2
+                        }
+                    ]
+                },
+                {
+                    "id": 3,
+                    "enemies": [
+                        {
+                            "class": "CrimsonReaver",
+                            "count": 2
+                        },
+                        {
+                            "class": "AshWarden",
+                            "count": 1
+                        },
+                        {
+                            "class": "SeekerEye",
+                            "count": 2
+                        }
+                    ]
+                },
+                {
+                    "id": 4,
+                    "enemies": [
+                        {
+                            "class": "AshWarden",
+                            "count": 1
+                        },
+                        {
+                            "class": "MagmaBrute",
+                            "count": 1
+                        },
+                        {
+                            "class": "CrimsonReaver",
+                            "count": 2
+                        },
+                        {
+                            "class": "BlightBrewer",
+                            "count": 2
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

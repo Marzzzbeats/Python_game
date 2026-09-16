@@ -34,3 +34,4 @@ class Enemy(pygame.sprite.Sprite):
 
     def draw(self):
         self.gameplay.play_surface.blit(self.image, self.rect)
+      

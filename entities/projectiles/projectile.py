@@ -18,7 +18,7 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=pos)
 
         self.hitbox = self.rect.copy()
-        self.hitbox.scale_by_ip(0.5)
+        self.scale_hitbox()
 
 
 

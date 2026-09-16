@@ -10,6 +10,10 @@ class BallProjectile(Projectile):
         image = pygame.transform.scale_by(image, 2)
         super().__init__(screen, pos, direction, speed, damage, image)
 
+
+    def scale_hitbox(self):
+        self.hitbox.scale_by_ip(1)
+
     def move(self):
         self.pos += self.direction * self.speed
         self.rect.center = self.pos

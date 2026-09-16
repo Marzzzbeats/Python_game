@@ -5,10 +5,11 @@ from entities.projectiles.player_projectiles.base import StraightProjectile
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, play_surface, all_projectiles):
+    def __init__(self, play_surface, play_area, all_projectiles):
         super().__init__()
 
         self.play_surface = play_surface
+        self.play_area = play_area
         self.all_projectiles = all_projectiles
         self.player_projectiles = pygame.sprite.Group()
         if pygame.joystick.get_count() > 0:
@@ -155,7 +156,7 @@ class Player(pygame.sprite.Sprite):
 
     def in_screen(self, x, y):
         future_rect = self.hitbox.move(x, y)
-        return self.play_surface.get_rect().contains(future_rect)
+        return self.play_area.contains(future_rect)
 
 
     def move(self, x, y):
@@ -277,9 +278,9 @@ class Player(pygame.sprite.Sprite):
 
 
     def draw(self):
-        pygame.draw.rect(self.play_surface,"green",self.rect,2)
+        # pygame.draw.rect(self.play_surface,"green",self.rect,2)
         pygame.draw.rect(self.play_surface,"red",self.hitbox,2)
         for proj in self.player_projectiles:
-            pygame.draw.rect(self.play_surface, "blue", proj.rect,2)
+            # pygame.draw.rect(self.play_surface, "blue", proj.rect,2)
             pygame.draw.rect(self.play_surface,"red", proj.hitbox,2)
         self.play_surface.blit(self.image, self.rect)
