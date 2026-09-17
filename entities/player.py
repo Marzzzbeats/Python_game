@@ -1,7 +1,7 @@
 import os
 import pygame
 
-from entities.projectiles.player_projectiles.base import StraightProjectile
+from entities.projectiles.player_projectiles.base import Base
 
 
 class Player(pygame.sprite.Sprite):
@@ -12,6 +12,8 @@ class Player(pygame.sprite.Sprite):
         self.play_area = play_area
         self.all_projectiles = all_projectiles
         self.player_projectiles = pygame.sprite.Group()
+
+        self.joystick_offset = 0.1 # ajuste si la manette a un joystick drift
         if pygame.joystick.get_count() > 0:
             self.joystick = pygame.joystick.Joystick(0)
         else:
@@ -20,9 +22,10 @@ class Player(pygame.sprite.Sprite):
         self.base_speed = 600
         self.speed = self.base_speed
         self.damage = 1
-        self.max_hp = 10
+        self.max_hp = 3
         self.hp = self.max_hp
         self.fire_rate = 10  # /seconds
+        self.dead = False
 
         self.sprites = self.load_sprites()
         self.state = "idle"
@@ -50,6 +53,18 @@ class Player(pygame.sprite.Sprite):
 
         self.hitbox = self.rect.copy()
         self.hitbox.scale_by_ip(0.5)
+
+
+    def get_animation_direction(self):
+        if self.state == "death":
+            diagonal_to_cardinal = {
+                "up_right": "right",
+                "down_right": "down",
+                "up_left": "up",
+                "down_left": "left",
+            }
+            return diagonal_to_cardinal.get(self.sprite_direction, self.sprite_direction)
+        return self.sprite_direction
 
 
     def normalize_sprite(self, image, target_height=90, canvas_size=256):
@@ -131,7 +146,8 @@ class Player(pygame.sprite.Sprite):
             self.previous_state = self.state
             self.previous_direction = self.sprite_direction
 
-        frames = self.sprites[self.state][self.sprite_direction]
+        direction = self.get_animation_direction()
+        frames = self.sprites[self.state][direction]
 
         if len(frames) <= 1:
             self.frame = 0
@@ -164,10 +180,18 @@ class Player(pygame.sprite.Sprite):
             self.rect.move_ip(x, y)
 
 
+    def take_damage(self, damage):
+        self.hp -= damage
+        if self.hp <= 0:
+            self.hp = 0
+            self.state = "death"
+            self.dead = True
+
+
     def shoot(self):
         self.state = "cast"
 
-        projectile = StraightProjectile(
+        projectile = Base(
             screen=self.play_surface,
             pos=self.rect.center,
             direction=self.look_direction,
@@ -199,10 +223,10 @@ class Player(pygame.sprite.Sprite):
         except AttributeError:
             joystick_dir = pygame.Vector2(0, 0)
 
-        if abs(joystick_dir.x) < 0.30:
+        if abs(joystick_dir.x) < self.joystick_offset:
             joystick_dir.x = 0
 
-        if abs(joystick_dir.y) < 0.30:
+        if abs(joystick_dir.y) < self.joystick_offset:
             joystick_dir.y = 0
 
         move_dir = keyboard_dir + joystick_dir
@@ -216,13 +240,13 @@ class Player(pygame.sprite.Sprite):
     def update_direction(self, move_dir):
         self.look_direction = move_dir
 
-        if move_dir.x > 0.3 and move_dir.y < -0.3:
+        if move_dir.x > self.joystick_offset and move_dir.y < -self.joystick_offset:
             self.sprite_direction = "up_right"
-        elif move_dir.x < -0.3 and move_dir.y < -0.3:
+        elif move_dir.x < -self.joystick_offset and move_dir.y < -self.joystick_offset:
             self.sprite_direction = "up_left"
-        elif move_dir.x > 0.3 and move_dir.y > 0.3:
+        elif move_dir.x > self.joystick_offset and move_dir.y > self.joystick_offset:
             self.sprite_direction = "down_right"
-        elif move_dir.x < -0.3 and move_dir.y > 0.3:
+        elif move_dir.x < -self.joystick_offset and move_dir.y > self.joystick_offset:
             self.sprite_direction = "down_left"
         elif abs(move_dir.x) > abs(move_dir.y):
             if move_dir.x > 0:
@@ -273,14 +297,22 @@ class Player(pygame.sprite.Sprite):
 
         self.shoot_timer -= dt
 
-        self.handle_inputs(keys, dt)
+        if not self.dead:
+            self.handle_inputs(keys, dt)
         self.animate(dt)
 
 
     def draw(self):
+        aim_distance = 100
+        aim_pos = self.rect.center + self.look_direction * aim_distance
+
+        pygame.draw.circle(self.play_surface, "white", aim_pos, 10,4)
+
         # pygame.draw.rect(self.play_surface,"green",self.rect,2)
         pygame.draw.rect(self.play_surface,"red",self.hitbox,2)
         for proj in self.player_projectiles:
-            # pygame.draw.rect(self.play_surface, "blue", proj.rect,2)
-            pygame.draw.rect(self.play_surface,"red", proj.hitbox,2)
+
+            if not hasattr(proj, "mask"):
+                pygame.draw.rect(self.play_surface,"red",proj.hitbox,2)
+
         self.play_surface.blit(self.image, self.rect)
