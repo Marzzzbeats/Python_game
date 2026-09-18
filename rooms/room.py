@@ -42,8 +42,6 @@ class Room:
         self.background = pygame.transform.scale(self.background, (play_surface.get_width(), play_surface.get_height()))
 
         self.room_json = self.load_room()
-        self.room_enemies = self.load_from_room("enemies")
-        # self.room_enemies = self.load_from_room("obstacles")
 
         self.spawn_enemies()
         self.spawn_obstacles()
