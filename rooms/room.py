@@ -70,7 +70,7 @@ class Room:
 
 
     def place_relative_play_area(self, x, y):
-        rel_x = self.gameplay.play_area.x + y
+        rel_x = self.gameplay.play_area.x + x
         rel_y = self.gameplay.play_area.y + y
         return rel_x, rel_y
 
@@ -111,8 +111,6 @@ class Room:
         )
 
         
-
-
     def update(self, dt):
         self.check_player_projectiles_collisions()
         self.check_enemy_projectiles_collisions()
