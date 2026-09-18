@@ -15,7 +15,7 @@ class BallProjectile(Projectile):
         self.hitbox.scale_by_ip(1)
 
 
-    def move(self):
-        self.pos += self.direction * self.speed
+    def move(self, dt):
+        self.pos += self.direction * self.speed * dt
         self.rect.center = self.pos
         self.hitbox.center = self.rect.center

@@ -21,7 +21,7 @@ class CinderImp(Enemy):
 
         if direction.length() != 0:
             direction = direction.normalize()
-
+            
         return direction
 
 
@@ -30,7 +30,7 @@ class CinderImp(Enemy):
             screen=self.gameplay.play_surface,
             pos=self.rect.center,
             direction=self.find_player_direction(self.gameplay.player),
-            speed=10,
+            speed=500,
             damage=1
         )
 

@@ -22,7 +22,7 @@ class Projectile(pygame.sprite.Sprite):
 
 
     def update(self, dt):
-        self.move()
+        self.move(dt)
 
         if not self.rect.colliderect(self.screen.get_rect()):
             self.kill()

@@ -7,7 +7,13 @@
                     "enemies": [
                         {
                             "class": "CinderImp",
-                            "count": 3
+                            "count": 1
+                        }
+                    ],
+                    "obstacles" : [
+                        {
+                            "class" : "Pillar",
+                            "pos" : [-100, -100]
                         }
                     ],
                     "max_enemies" : 3
@@ -24,6 +30,8 @@
                             "count": 2
                         }
                     ],
+                    "obstacles" : [
+                    ],
                     "max_enemies" : 3
                 },
                 {
@@ -37,6 +45,8 @@
                             "class": "CinderImp",
                             "count": 2
                         }
+                    ],
+                    "obstacles" : [
                     ],
                     "max_enemies" : 3
                 },
@@ -55,6 +65,8 @@
                             "class": "CinderImp",
                             "count": 2
                         }
+                    ],
+                    "obstacles" : [
                     ],
                     "max_enemies" : 3
                 }

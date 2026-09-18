@@ -1,5 +1,7 @@
 import pygame
 import json
+from entities.enemies import ENEMIES_CLASS
+from entities.obstacles import OBSTACLES_CLASS
 
 
 def collide_hitbox(a, b):
@@ -25,8 +27,11 @@ def collide_hitbox(a, b):
 
 
 class Room:
-    def __init__(self, gameplay):
+    def __init__(self, gameplay, tier, room_id):
+        self.tier = tier
+        self.room_id = room_id
         self.gameplay = gameplay
+
         self.all_enemies = pygame.sprite.Group()
         self.all_enemies_projectile = pygame.sprite.Group()
 
@@ -39,7 +44,10 @@ class Room:
         self.room_json = self.load_room()
         self.room_enemies = self.load_from_room("enemies")
         # self.room_enemies = self.load_from_room("obstacles")
-        print(self.room_enemies)
+
+        self.spawn_enemies()
+        self.spawn_obstacles()
+        self.place_all_obstacles()
 
 
     def load_room(self):
@@ -109,6 +117,23 @@ class Room:
             False,
             collide_hitbox
         )
+
+
+    def spawn_enemies(self):
+        room_enemies = self.load_from_room("enemies")
+        for room_enemy in room_enemies:
+            for _ in range(room_enemy["count"]):
+                pos = self.place_relative_play_area(50, 100)
+                enemy = ENEMIES_CLASS[room_enemy["class"]](self.gameplay, self.all_enemies_projectile, pos, 10, 1, 5)
+                self.all_enemies.add(enemy)
+
+
+    def spawn_obstacles(self):
+        room_obstacles = self.load_from_room("obstacles")
+        for room_obstacle in room_obstacles:
+            posx, posy = room_obstacle["pos"]
+            pillar = OBSTACLES_CLASS[room_obstacle["class"]](posx, posy, self.gameplay.play_surface)
+            self.all_obstacles.add(pillar)
 
         
     def update(self, dt):

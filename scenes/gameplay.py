@@ -3,8 +3,7 @@ import random
 
 from scenes.scene import Scene
 from entities.player import Player
-from rooms import ROOMS
-
+from rooms.room import Room
 
 class Gameplay(Scene):
     def __init__(self, game):
@@ -44,7 +43,7 @@ class Gameplay(Scene):
 
         self.tier = 0
         self.room_id = random.randint(0,0)
-        self.room = ROOMS[self.tier][self.room_id](self)
+        self.room = Room(self, self.tier, self.room_id)
 
         self.player = Player(self)
 

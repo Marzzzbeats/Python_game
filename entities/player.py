@@ -20,7 +20,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.joystick = None
 
-        self.base_speed = 600
+        self.base_speed = 400
         self.speed = self.base_speed
         self.damage = 1
         self.max_hp = 10
@@ -208,7 +208,7 @@ class Player(pygame.sprite.Sprite):
             screen=self.play_surface,
             pos=self.rect.center,
             direction=self.look_direction,
-            speed=20,
+            speed=500,
             damage=1
         )
 
