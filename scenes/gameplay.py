@@ -29,6 +29,10 @@ class Gameplay(Scene):
         self.health_bar_frame = pygame.transform.scale(self.health_bar_frame, (self.health_bar_frame_height*3, self.health_bar_frame_height))
         self.health_font = pygame.font.Font(None, 28)
 
+        self.attack_image = pygame.image.load("assets/misc/attack.png").convert_alpha()
+        self.attack_image = pygame.transform.scale(self.attack_image, (200, 200))
+        self.alpha_layer_attack = pygame.Surface(self.attack_image.get_size(), pygame.SRCALPHA)
+
         self.game_over_alpha = 0
         self.game_over_speed = 100
         self.game_over_image = pygame.image.load("assets/scenes/game_over.png").convert_alpha()
@@ -38,6 +42,24 @@ class Gameplay(Scene):
         self.death_fade_delay = 0.8
 
         self.room = ROOMS[1][0](self)
+
+
+    def draw_attack_cooldown(self, screen):
+        attack_image_width = self.attack_image.get_width()
+        attack_image_height = self.attack_image.get_height()
+        x = (screen.get_width() - attack_image_width) // 2
+        y = screen.get_height() - attack_image_height - 30
+        screen.blit(self.attack_image, (x, y))
+        self.alpha_layer_attack.fill((0, 0, 0, 0))
+        square_x = 45
+        square_y = 38
+        square_size = attack_image_width - 90
+        ratio = self.player.shoot_timer / self.player.shoot_cooldown
+        current_height = int(square_size * ratio)
+        current_y = square_y + square_size - current_height
+        attack_cool_rect = pygame.Rect(square_x,current_y,square_size,current_height)
+        pygame.draw.rect(self.alpha_layer_attack,(200, 200, 200, 120),attack_cool_rect)
+        screen.blit(self.alpha_layer_attack, (x, y))
 
 
     def draw_health_bar(self, screen):
@@ -97,6 +119,7 @@ class Gameplay(Scene):
         pygame.draw.rect(self.play_surface, "pink", self.play_area, 2)
         self.game.screen.blit(self.play_surface, (self.offset_x, self.offset_y))
         self.draw_health_bar(self.game.screen)
+        self.draw_attack_cooldown(self.game.screen)
 
         if self.player.dead:
             self.game_over_image.set_alpha(int(self.game_over_alpha))

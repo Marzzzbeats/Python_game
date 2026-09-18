@@ -22,9 +22,9 @@ class Player(pygame.sprite.Sprite):
         self.base_speed = 600
         self.speed = self.base_speed
         self.damage = 1
-        self.max_hp = 3
+        self.max_hp = 10
         self.hp = self.max_hp
-        self.fire_rate = 10  # /seconds
+        self.fire_rate = 1  # /seconds
         self.dead = False
 
         self.sprites = self.load_sprites()
@@ -52,7 +52,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = self.play_surface.get_rect().center
 
         self.hitbox = self.rect.copy()
-        self.hitbox.scale_by_ip(0.5)
+        self.hitbox.scale_by_ip(0.4)
 
 
     def get_animation_direction(self):
@@ -276,7 +276,7 @@ class Player(pygame.sprite.Sprite):
 
         if move_dir.length() > 0:
             self.move(move_dir.x * self.speed * dt, move_dir.y * self.speed * dt)
-            self.hitbox.center = self.rect.center
+            self.hitbox.center = (self.rect.centerx, self.rect.centery + 10)
 
             if not shoot_pressed:
                 self.update_direction(move_dir)
