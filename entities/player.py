@@ -5,12 +5,13 @@ from entities.projectiles.player_projectiles.base import Base
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, play_surface, play_area, all_projectiles):
+    def __init__(self, gameplay):
         super().__init__()
 
-        self.play_surface = play_surface
-        self.play_area = play_area
-        self.all_projectiles = all_projectiles
+        self.play_surface = gameplay.play_surface
+        self.play_area = gameplay.play_area
+        self.all_projectiles = gameplay.all_projectiles
+        self.all_obstacles = gameplay.room.all_obstacles
         self.player_projectiles = pygame.sprite.Group()
 
         self.joystick_offset = 0.1 # ajuste si la manette a un joystick drift
@@ -169,14 +170,26 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=center)
 
 
+    def check_obstacles_collision(self, x, y):
+        future_hitbox = self.hitbox.move(x, y)
+        for obstacle in self.all_obstacles:
+            if future_hitbox.colliderect(obstacle.hitbox):
+                return True
+        return False
+
+
+    def can_move(self, x, y):
+        return (self.in_screen(x, y)and not self.check_obstacles_collision(x, y))
+
 
     def in_screen(self, x, y):
         future_rect = self.hitbox.move(x, y)
         return self.play_area.contains(future_rect)
 
 
-    def move(self, x, y):
-        if self.in_screen(x, y):
+
+    def player_move(self, x, y):
+        if self.can_move(x, y):
             self.rect.move_ip(x, y)
 
 
@@ -275,7 +288,7 @@ class Player(pygame.sprite.Sprite):
             self.speed = self.base_speed
 
         if move_dir.length() > 0:
-            self.move(move_dir.x * self.speed * dt, move_dir.y * self.speed * dt)
+            self.player_move(move_dir.x * self.speed * dt, move_dir.y * self.speed * dt)
             self.hitbox.center = (self.rect.centerx, self.rect.centery + 10)
 
             if not shoot_pressed:

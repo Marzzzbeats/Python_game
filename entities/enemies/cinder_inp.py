@@ -4,7 +4,7 @@ from entities.projectiles.enemy_projectile.ball import BallProjectile
 
 
 class CinderImp(Enemy):
-    def __init__(self, gameplay, all_enemies_projectile, pos, image, speed, damage, max_life):
+    def __init__(self, gameplay, all_enemies_projectile, pos, speed, damage, max_life):
         self.gameplay = gameplay
         self.all_enemies_projectile = all_enemies_projectile
         image = pygame.image.load("assets/enemies/cinder_imp.png").convert_alpha()

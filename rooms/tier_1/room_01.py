@@ -2,6 +2,7 @@ import pygame
 from rooms.room import Room
 
 from entities.enemies.cinder_inp import CinderImp
+from entities.obstacles.pillar import Pillar
 
 
 class RoomT1_01(Room):
@@ -9,6 +10,12 @@ class RoomT1_01(Room):
         super().__init__(gameplay)
 
 
-        image = pygame.image.load("assets/enemies/cinder_imp.png").convert_alpha()
-        enemy1 = CinderImp(gameplay, self.all_enemies_projectile, self.place_relative_play_area(50, 100), image, 10, 1, 5)
+        enemy1 = CinderImp(gameplay, self.all_enemies_projectile, self.place_relative_play_area(50, 100), 10, 1, 5)
         self.all_enemies.add(enemy1)
+
+        pillar1 = Pillar(-100, -100, gameplay.play_surface)
+        self.all_obstacles.add(pillar1)
+
+        self.place_all_obstacles()
+
+        

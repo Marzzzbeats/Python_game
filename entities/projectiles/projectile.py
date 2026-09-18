@@ -21,7 +21,6 @@ class Projectile(pygame.sprite.Sprite):
         self.scale_hitbox()
 
 
-
     def update(self, dt):
         self.move()
 

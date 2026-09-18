@@ -1,4 +1,6 @@
 import pygame
+import random
+
 from scenes.scene import Scene
 from entities.player import Player
 from rooms import ROOMS
@@ -22,7 +24,6 @@ class Gameplay(Scene):
         )
         
         self.all_projectiles = pygame.sprite.Group()
-        self.player = Player(self.play_surface, self.play_area, self.all_projectiles)
 
         self.health_bar_frame_height = 150
         self.health_bar_frame = pygame.image.load("assets/player/health_bar.png").convert_alpha()
@@ -41,8 +42,11 @@ class Gameplay(Scene):
         self.death_timer = 0
         self.death_fade_delay = 0.8
 
-        self.room = ROOMS[1][0](self)
+        self.tier = 0
+        self.room_id = random.randint(0,0)
+        self.room = ROOMS[self.tier][self.room_id](self)
 
+        self.player = Player(self)
 
     def draw_attack_cooldown(self, screen):
         attack_image_width = self.attack_image.get_width()
