@@ -11,5 +11,5 @@ class Scene:
         if event.type == pygame.QUIT:
             self.game.running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            print(event.pos)
+            print(f"CLICK at : {event.pos}")
 

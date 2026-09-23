@@ -38,8 +38,12 @@ class Room:
         self.all_obstacles = pygame.sprite.Group()
 
         self.background = pygame.image.load("assets/rooms/default.png").convert_alpha()
-        play_surface = self.gameplay.play_surface
-        self.background = pygame.transform.scale(self.background, (play_surface.get_width(), play_surface.get_height()))
+        self.background = pygame.transform.scale(self.background, (self.gameplay.play_surface.get_width(), self.gameplay.play_surface.get_height()))
+
+        self.columns = 16
+        self.tile_size = gameplay.play_area.width / self.columns    
+        self.rows = int(gameplay.play_area.height / self.tile_size)
+        # pour l'instant c du 16x6
 
         self.room_json = self.load_room()
 
@@ -70,15 +74,21 @@ class Room:
             new_x = max(0, self.gameplay.play_area.width + obstacle.x)
         if obstacle.y < 0:
             new_y = max(0, self.gameplay.play_area.height + obstacle.y)
-        obstacle.rect.center = (self.place_relative_play_area(new_x, new_y))
+        obstacle.rect.center = (self.place_from_layout(new_x, new_y))
         obstacle.hitbox.center = obstacle.rect.center
-        print(new_x, new_y)
+        print(f"{type(obstacle)} at pos : x={obstacle.hitbox.center[0]}   y={obstacle.hitbox.center[1]}")
 
 
     def place_relative_play_area(self, x, y):
         rel_x = self.gameplay.play_area.x + x
         rel_y = self.gameplay.play_area.y + y
         return rel_x, rel_y
+
+
+    def place_from_layout(self, tile_x, tile_y):
+        x = (min(tile_x, self.gameplay.play_area.width) + 1/2) * self.tile_size
+        y = (min(tile_y, self.gameplay.play_area.height) + 1/2) *  self.tile_size 
+        return self.place_relative_play_area(x,y)
 
 
     def check_player_projectiles_collisions(self):
@@ -127,11 +137,30 @@ class Room:
 
 
     def spawn_obstacles(self):
-        room_obstacles = self.load_from_room("obstacles")
-        for room_obstacle in room_obstacles:
-            posx, posy = room_obstacle["pos"]
-            pillar = OBSTACLES_CLASS[room_obstacle["class"]](posx, posy, self.gameplay.play_surface)
-            self.all_obstacles.add(pillar)
+        layout = self.load_from_room("layout")
+
+        for i,row in enumerate(layout):
+            for j,tile in enumerate(row):
+                match tile:
+                    case "P":
+                        pillar = OBSTACLES_CLASS["Pillar"](j, i, self.gameplay.play_surface)
+                        self.all_obstacles.add(pillar)
+
+
+
+    def draw_grid(self, surface):
+        grid_width = self.gameplay.play_area.width
+        grid_height = self.gameplay.play_area.height
+        grid_x = self.gameplay.play_area.x
+        grid_y = self.gameplay.play_area.y
+
+        for col in range(self.columns + 1):
+            x = grid_x + col * self.tile_size
+            pygame.draw.line(surface,"lime",(x, grid_y),(x, grid_y + grid_height),2)
+
+        for row in range(self.rows + 1):
+            y = grid_y + row * self.tile_size
+            pygame.draw.line(surface,"lime",(grid_x, y),(grid_x + grid_width, y),2)
 
         
     def update(self, dt):
@@ -147,6 +176,8 @@ class Room:
         self.gameplay.play_surface.blit(self.background, (0,0))
         self.all_enemies.draw(self.gameplay.play_surface)
         self.all_obstacles.draw(self.gameplay.play_surface)
+
+        self.draw_grid(self.gameplay.play_surface)
 
         for obstacle in self.all_obstacles:
             # pygame.draw.rect(self.gameplay.play_surface,"cyan", obstacle.rect,2)
