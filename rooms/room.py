@@ -41,9 +41,13 @@ class Room:
         self.background = pygame.transform.scale(self.background, (self.gameplay.play_surface.get_width(), self.gameplay.play_surface.get_height()))
 
         self.columns = 16
-        self.tile_size = gameplay.play_area.width / self.columns    
-        self.rows = int(gameplay.play_area.height / self.tile_size)
-        # pour l'instant c du 16x6
+        self.rows = 6
+        self.tile_size = min(self.gameplay.play_area.width / self.columns, self.gameplay.play_area.height / self.rows)
+        self.grid_width = self.columns * self.tile_size
+        self.grid_height = self.rows * self.tile_size
+        self.grid_x = (self.gameplay.play_area.x + (self.gameplay.play_area.width - self.grid_width) / 2)
+        self.grid_y = (self.gameplay.play_area.y + (self.gameplay.play_area.height - self.grid_height) / 2)
+
 
         self.room_json = self.load_room()
 
@@ -149,18 +153,13 @@ class Room:
 
 
     def draw_grid(self, surface):
-        grid_width = self.gameplay.play_area.width
-        grid_height = self.gameplay.play_area.height
-        grid_x = self.gameplay.play_area.x
-        grid_y = self.gameplay.play_area.y
-
         for col in range(self.columns + 1):
-            x = grid_x + col * self.tile_size
-            pygame.draw.line(surface,"lime",(x, grid_y),(x, grid_y + grid_height),2)
+            x = self.grid_x + col * self.tile_size
+            pygame.draw.line(surface,"lime",(x, self.grid_y),(x, self.grid_y + self.grid_height),2)
 
         for row in range(self.rows + 1):
-            y = grid_y + row * self.tile_size
-            pygame.draw.line(surface,"lime",(grid_x, y),(grid_x + grid_width, y),2)
+            y = self.grid_y + row * self.tile_size
+            pygame.draw.line(surface,"lime",(self.grid_x, y),(self.grid_x + self.grid_width, y),2)
 
         
     def update(self, dt):

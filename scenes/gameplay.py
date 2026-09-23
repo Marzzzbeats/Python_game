@@ -15,11 +15,15 @@ class Gameplay(Scene):
         self.play_surface = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
         self.offset_x = self.game.screen.get_width() * 0.0125
         self.offset_y = self.game.screen.get_height() * 0.025
+        
+        PLAY_AREA_X, PLAY_AREA_Y = 0.0449688, 0.1834696
+        PLAY_AREA_W, PLAY_AREA_H = 0.9105076, 0.6993642
+
         self.play_area = pygame.Rect(
-            130 - self.offset_x,
-            235 - self.offset_y,
-            2175 - 130,
-            1005 - 235
+            self.play_surface.get_width() * PLAY_AREA_X,
+            self.play_surface.get_height() * PLAY_AREA_Y,
+            self.play_surface.get_width() * PLAY_AREA_W,
+            self.play_surface.get_height() * PLAY_AREA_H
         )
         
         self.all_projectiles = pygame.sprite.Group()
