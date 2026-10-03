@@ -7,7 +7,7 @@
                     "enemies": [
                         {
                             "class": "CinderImp",
-                            "count": 1
+                            "count": 2
                         }
                     ],
                     "layout": [
@@ -18,7 +18,7 @@
                         "......C.B.......",
                         "P..S............"
                     ],
-                    "max_enemies" : 3
+                    "max_enemies" : 1
                 },
                 {
                     "id": 1,

@@ -1,5 +1,6 @@
 import pygame
 import json
+import random as rd
 from entities.enemies import ENEMIES_CLASS
 from entities.obstacles import OBSTACLES_CLASS
 
@@ -47,11 +48,18 @@ class Room:
         self.grid_height = self.rows * self.tile_size
         self.grid_x = (self.gameplay.play_area.x + (self.gameplay.play_area.width - self.grid_width) / 2)
         self.grid_y = (self.gameplay.play_area.y + (self.gameplay.play_area.height - self.grid_height) / 2)
+        
+        self.current_enemy_count = 0
+        self.current_enemies = []
+        self.total_enemies_count = 0
+        self.total_enemies = []
+        self.max_enemies = 0
+        self.id_enemies = 0
 
 
         self.room_json = self.load_room()
 
-        self.spawn_enemies()
+        self.init_spawn_enemies()
         self.spawn_obstacles()
         self.place_all_obstacles()
 
@@ -106,7 +114,12 @@ class Room:
 
         for projectile, enemies_hit in collisions.items():
             for enemy in enemies_hit:
-                enemy.take_damage(projectile.damage)
+                indice = enemy.take_damage(projectile.damage)
+                if indice != -1 :
+                    for i in len(self.current_enemies) :
+                        if self.current_enemies[i]["id"] == indice:
+                            self.current_enemies.pop(i)
+                            self.current_enemy_count -=1
 
 
     def check_enemy_projectiles_collisions(self):
@@ -131,13 +144,17 @@ class Room:
         )
 
 
-    def spawn_enemies(self):
-        room_enemies = self.load_from_room("enemies")
-        for room_enemy in room_enemies:
-            for _ in range(room_enemy["count"]):
-                pos = self.place_relative_play_area(50, 100)
-                enemy = ENEMIES_CLASS[room_enemy["class"]](self.gameplay, self.all_enemies_projectile, pos, 10, 1, 5)
-                self.all_enemies.add(enemy)
+    def init_spawn_enemies(self):
+        self.total_enemies = self.load_from_room("enemies")
+        self.max_enemies = self.load_from_room("max_enemies")
+        # for room_enemy in room_enemies:
+        #     for _ in range(room_enemy["count"]):
+        #         while self.current_enemy_count >= room_max_enemies:
+        #             print("wait")
+        #         pos = self.place_relative_play_area(50, 100)
+        #         enemy = ENEMIES_CLASS[room_enemy["class"]](self.gameplay, self.all_enemies_projectile, pos, 10, 1, 5)
+        #         self.all_enemies.add(enemy)
+        #         self.current_enemy_count +=1
 
 
     def spawn_obstacles(self):
@@ -166,8 +183,30 @@ class Room:
         self.check_player_projectiles_collisions()
         self.check_enemy_projectiles_collisions()
         self.check_projectiles_collisions_obstacle()
+        self.spawn_enemies()
         if not self.gameplay.player.dead:
             self.all_enemies.update(dt)
+
+    def check_enemies_count(self)->bool:
+        """Vérifie si le seuil d'ennemis de la salle a été atteint """
+        return self.current_enemy_count >= self.max_enemies
+
+
+    def spawn_enemies(self):
+        if not self.check_enemies_count() :
+            self.total_enemies = rd.shuffle(self.total_enemies)
+            enemy_type = self.total_enemies[0]
+            pos = self.place_relative_play_area(rd.randint(130,200), (235, 900))
+            enemy = ENEMIES_CLASS[enemy_type["class"]](self.gameplay, self.all_enemies_projectile, pos, 10, 1, 5, self.id_enemies)
+            self.all_enemies.add(enemy)
+            if enemy_type["count"] == 1 :
+                self.total_enemies.pop(0)
+            else:
+                enemy_type["count"] -= 1
+            self.current_enemies.append({"id": self.id_enemies, "classe": enemy_type["class"]})
+            self.current_enemy_count +=1
+            self.id_enemies +=1
+
 
 
 

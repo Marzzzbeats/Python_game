@@ -3,7 +3,7 @@ import pygame
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, gameplay, pos, image, speed, damage, max_hp):
+    def __init__(self, gameplay, pos, image, speed, damage, max_hp, id):
         super().__init__()
 
         self.gameplay = gameplay
@@ -24,13 +24,19 @@ class Enemy(pygame.sprite.Sprite):
         self.hitbox = self.rect.copy()
         self.hitbox.scale_by_ip(0.6)
 
+        self.id = id
+
+    def die(self):
+        self.kill()
+        return self.id
 
     def take_damage(self, damage):
+        res = -1
         self.hp -= damage
 
         if self.hp <= 0:
-            self.kill()
-
+            res = self.die()
+        return res
 
     def draw(self):
         self.gameplay.play_surface.blit(self.image, self.rect)
