@@ -119,6 +119,7 @@ class Room:
                     print("mort")
                     self.current_enemy_count -=1
                     for i in range(len(self.current_enemies)) :
+                        print(i)
                         if self.current_enemies[i]["id"] == indice:
                             self.current_enemies.pop(i)
 
@@ -187,14 +188,10 @@ class Room:
 
 
     def spawn_enemies(self):
-        print(self.current_enemy_count)
-        print(self.current_enemies)
-        print(self.total_enemies)
         if not self.check_enemies_count() and self.total_enemies != []:
             rd.shuffle(self.total_enemies)
-            print(self.total_enemies)
             enemy_type = self.total_enemies[0]
-            pos = self.place_relative_play_area(rd.randint(130,2000), rd.randint(235, 300))
+            pos = self.place_relative_play_area(rd.randint(130,2000), rd.randint(100, 300))
             enemy = ENEMIES_CLASS[enemy_type["class"]](self.gameplay, self.all_enemies_projectile, pos, 10, 1, 5, self.id_enemies)
             self.all_enemies.add(enemy)
             if enemy_type["count"] == 1 :
