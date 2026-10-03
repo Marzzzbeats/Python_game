@@ -11,6 +11,7 @@ class BallProjectile(Projectile):
         screen: pygame.Surface,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
+        owner: str,
         speed: float = 450,
         damage: int = 1
     ):
@@ -23,5 +24,6 @@ class BallProjectile(Projectile):
             speed=speed,
             damage=damage,
             image=image,
+            owner=owner,
             hitbox_scale=0.7
         )

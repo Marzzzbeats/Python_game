@@ -171,6 +171,7 @@ class Player(pygame.sprite.Sprite):
             screen=self.play_surface,
             pos=self.rect.center,
             direction=self.look_direction,
+            owner="player",
             speed=PLAYER_PROJECTILE_SPEED,
             damage=self.damage
         )

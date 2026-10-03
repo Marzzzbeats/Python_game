@@ -39,6 +39,7 @@ class CinderImp(Enemy):
             screen=screen,
             pos=self.rect.center,
             direction=direction,
+            owner="enemy",
             speed=400,
             damage=self.damage
         )

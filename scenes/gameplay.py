@@ -116,7 +116,7 @@ class Gameplay(Scene):
             self.current_room.enemies
         )
         CollisionSystem.handle_enemy_projectiles_vs_player(
-            self.all_projectiles,
+            self.current_room.enemy_projectiles,
             self.player
         )
         CollisionSystem.handle_projectiles_vs_obstacles(
