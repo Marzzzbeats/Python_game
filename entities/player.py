@@ -1,331 +1,298 @@
-import os
 import pygame
-
+from core.asset_manager import AssetManager
+from core.constants import (
+    COLOR_HITBOX_DEBUG,
+    COLOR_WHITE,
+    JOYSTICK_DEADZONE,
+    PLAYER_BASE_SPEED,
+    PLAYER_FIRE_RATE,
+    PLAYER_HITBOX_SCALE,
+    PLAYER_MAX_HP,
+    PLAYER_PROJECTILE_DAMAGE,
+    PLAYER_PROJECTILE_SPEED,
+)
 from entities.projectiles.player_projectiles.base import Base
+from systems.collision_system import CollisionSystem
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, gameplay):
+    """Entité Joueur avec contrôles (AZERTY/QWERTY/Manette), animations et tir."""
+
+    def __init__(self, play_surface: pygame.Surface, play_area: pygame.Rect):
         super().__init__()
 
-        self.play_surface = gameplay.play_surface
-        self.play_area = gameplay.play_area
-        self.all_projectiles = gameplay.all_projectiles
-        self.all_obstacles = gameplay.room.all_obstacles
+        self.play_surface = play_surface
+        self.play_area = play_area
+
+        # Groupe interne des projectiles tirés par ce joueur
         self.player_projectiles = pygame.sprite.Group()
 
-        self.joystick_offset = 0.1 # ajuste si la manette a un joystick drift
+        # Initialisation Manette
+        self.joystick = None
         if pygame.joystick.get_count() > 0:
-            self.joystick = pygame.joystick.Joystick(0)
-        else:
-            self.joystick = None
+            try:
+                self.joystick = pygame.joystick.Joystick(0)
+                self.joystick.init()
+            except pygame.error:
+                self.joystick = None
 
-        self.base_speed = 400
+        # Caractéristiques
+        self.base_speed = PLAYER_BASE_SPEED
         self.speed = self.base_speed
-        self.damage = 1
-        self.max_hp = 10
+        self.max_hp = PLAYER_MAX_HP
         self.hp = self.max_hp
-        self.fire_rate = 1  # /seconds
+        self.damage = PLAYER_PROJECTILE_DAMAGE
+        self.fire_rate = PLAYER_FIRE_RATE
+        self.shoot_cooldown = 1.0 / self.fire_rate
+        self.shoot_timer = 0.0
         self.dead = False
 
-        self.sprites = self.load_sprites()
+        # Invulnérabilité temporaire après dégâts
+        self.invulnerable_timer = 0.0
+        self.invulnerable_duration = 0.6
+
+        # Sprites et Animation
+        self.sprites = AssetManager.get_player_sprites()
         self.state = "idle"
         self.sprite_direction = "right"
         self.frame = 0
-
         self.previous_state = self.state
         self.previous_direction = self.sprite_direction
 
-        self.animation_timer = 0
+        self.animation_timer = 0.0
         self.animation_speed = {
+            "idle": 0.15,
             "walk": 0.12,
-            "cast": 0.06,
-            "death": 0.15
+            "cast": 0.08,
+            "death": 0.15,
+            "hurt": 0.10,
         }
+
+        self.cast_duration = 0.25
+        self.cast_timer = 0.0
 
         self.look_direction = pygame.Vector2(1, 0)
 
-        self.shoot_cooldown = 1/self.fire_rate
-        self.shoot_timer = 0
-
+        # Image et Hitbox
         self.image = self.sprites[self.state][self.sprite_direction][self.frame]
-        self.rect = self.image.get_rect()
-        self.rect.center = self.play_surface.get_rect().center
+        self.rect = self.image.get_rect(center=self.play_surface.get_rect().center)
 
         self.hitbox = self.rect.copy()
-        self.hitbox.scale_by_ip(0.4)
+        self.hitbox.scale_by_ip(PLAYER_HITBOX_SCALE)
+        self.sync_hitbox()
 
+    def sync_hitbox(self):
+        """Synchronise précisément la boîte de collision sur les pieds du personnage."""
+        self.hitbox.center = (self.rect.centerx, self.rect.centery + 10)
 
-    def get_animation_direction(self):
-        if self.state == "death":
-            diagonal_to_cardinal = {
+    def get_animation_direction(self) -> str:
+        """Adapte les directions diagonales si une animation n'a que les 4 points cardinaux."""
+        if self.state in ("death", "hurt"):
+            diagonal_map = {
                 "up_right": "right",
                 "down_right": "down",
                 "up_left": "up",
                 "down_left": "left",
             }
-            return diagonal_to_cardinal.get(self.sprite_direction, self.sprite_direction)
+            return diagonal_map.get(self.sprite_direction, self.sprite_direction)
         return self.sprite_direction
 
-
-    def normalize_sprite(self, image, target_height=90, canvas_size=256):
-        bbox = image.get_bounding_rect()
-        visible = image.subsurface(bbox).copy()
-
-        ratio = target_height / visible.get_height()
-        new_width = round(visible.get_width() * ratio)
-        new_height = target_height
-
-        visible = pygame.transform.scale(visible,(new_width, new_height))
-
-        canvas = pygame.Surface((canvas_size, canvas_size),pygame.SRCALPHA)
-
-        x = (canvas_size - new_width) // 2
-
-        FOOT_Y = 190
-        y = FOOT_Y - new_height
-
-        canvas.blit(visible, (x, y))
-
-        return canvas
-
-
-    def load_sprites(self):
-        player_sprites = {}
-
-        states = [
-            "idle",
-            "walk",
-            "cast",
-            "death"
-        ]
-
-        directions = [
-            "up",
-            "up_right",
-            "right",
-            "down_right",
-            "down",
-            "down_left",
-            "left",
-            "up_left"
-        ]
-
-        target_heights = {
-            "idle": 120,
-            "walk": 90,
-            "cast": 90,
-            "death": 90
-        }
-
-        for state in states:
-            player_sprites[state] = {}
-
-            for direction in directions:
-                player_sprites[state][direction] = []
-
-                path = f"assets/player/{state}/{direction}"
-
-                if not os.path.exists(path):
-                    continue
-
-                for filename in sorted(os.listdir(path)):
-                    if filename.endswith(".png"):
-                        image = pygame.image.load(f"{path}/{filename}").convert_alpha()
-                        image = self.normalize_sprite(image, target_height=target_heights[state])
-                        player_sprites[state][direction].append(image)
-
-        return player_sprites
-
-
-
-    def animate(self, dt):
-        if (self.state != self.previous_state or self.sprite_direction != self.previous_direction):
+    def animate(self, dt: float):
+        """Met à jour les frames d'animation en fonction de l'état."""
+        if self.state != self.previous_state or self.sprite_direction != self.previous_direction:
             self.frame = 0
-            self.animation_timer = 0
-
+            self.animation_timer = 0.0
             self.previous_state = self.state
             self.previous_direction = self.sprite_direction
 
         direction = self.get_animation_direction()
-        frames = self.sprites[self.state][direction]
+        frames = self.sprites.get(self.state, {}).get(direction, [])
+
+        if not frames:
+            return
 
         if len(frames) <= 1:
             self.frame = 0
         else:
             self.animation_timer += dt
-
-            if self.animation_timer >= self.animation_speed[self.state]:
-                self.animation_timer = 0
-
+            speed = self.animation_speed.get(self.state, 0.12)
+            if self.animation_timer >= speed:
+                self.animation_timer = 0.0
                 if self.state == "death":
                     self.frame = min(self.frame + 1, len(frames) - 1)
-
                 else:
                     self.frame = (self.frame + 1) % len(frames)
 
         center = self.rect.center
-
         self.image = frames[self.frame]
         self.rect = self.image.get_rect(center=center)
+        self.sync_hitbox()
 
+    def can_move_to(self, dx: float, dy: float, obstacles: pygame.sprite.Group) -> bool:
+        """Vérifie que la future position reste dans l'aire de jeu et sans collision obstacle."""
+        future_hitbox = self.hitbox.move(dx, dy)
+        if not self.play_area.contains(future_hitbox):
+            return False
+        return not CollisionSystem.check_obstacle_collision(future_hitbox, obstacles)
 
-    def check_obstacles_collision(self, x, y):
-        future_hitbox = self.hitbox.move(x, y)
-        for obstacle in self.all_obstacles:
-            if future_hitbox.colliderect(obstacle.hitbox):
-                return True
-        return False
+    def move(self, dx: float, dy: float, obstacles: pygame.sprite.Group):
+        """Déplace le joueur avec glissement indépendant sur les axes X et Y contre les obstacles."""
+        if self.can_move_to(dx, dy, obstacles):
+            self.rect.move_ip(dx, dy)
+        elif self.can_move_to(dx, 0, obstacles):
+            self.rect.move_ip(dx, 0)
+        elif self.can_move_to(0, dy, obstacles):
+            self.rect.move_ip(0, dy)
 
+        self.sync_hitbox()
 
-    def can_move(self, x, y):
-        return (self.in_screen(x, y)and not self.check_obstacles_collision(x, y))
+    def take_damage(self, amount: int):
+        """Inflige des dégâts avec délai d'invulnérabilité."""
+        if self.dead or self.invulnerable_timer > 0:
+            return
 
+        self.hp -= amount
+        self.invulnerable_timer = self.invulnerable_duration
 
-    def in_screen(self, x, y):
-        future_rect = self.hitbox.move(x, y)
-        return self.play_area.contains(future_rect)
-
-
-
-    def player_move(self, x, y):
-        if self.can_move(x, y):
-            self.rect.move_ip(x, y)
-
-
-    def take_damage(self, damage):
-        self.hp -= damage
         if self.hp <= 0:
             self.hp = 0
-            self.state = "death"
             self.dead = True
+            self.state = "death"
 
+    def shoot(self, target_group: pygame.sprite.Group):
+        """Crée un projectile dirigé selon l'orientation du joueur."""
+        if self.dead:
+            return
 
-    def shoot(self):
         self.state = "cast"
+        self.cast_timer = self.cast_duration
 
         projectile = Base(
             screen=self.play_surface,
             pos=self.rect.center,
             direction=self.look_direction,
-            speed=500,
-            damage=1
+            speed=PLAYER_PROJECTILE_SPEED,
+            damage=self.damage
         )
 
-        self.all_projectiles.add(projectile)
+        target_group.add(projectile)
         self.player_projectiles.add(projectile)
 
+    def get_movement_vector(self, keys) -> pygame.Vector2:
+        """Gère les entrées clavier (AZERTY ZQSD + QWERTY WASD + Flèches) et manette."""
+        direction = pygame.Vector2(0, 0)
 
-    def get_move_direction(self, keys):
-        keyboard_dir = pygame.Vector2(0, 0)
+        # Clavier : ZQSD ou WASD ou Flèches
+        if keys[pygame.K_q] or keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            direction.x -= 1
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            direction.x += 1
+        if keys[pygame.K_z] or keys[pygame.K_w] or keys[pygame.K_UP]:
+            direction.y -= 1
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            direction.y += 1
 
-        if keys[pygame.K_q]:
-            keyboard_dir.x -= 1
+        # Joystick Manette
+        if self.joystick is not None:
+            try:
+                jx = self.joystick.get_axis(0)
+                jy = self.joystick.get_axis(1)
+                if abs(jx) > JOYSTICK_DEADZONE:
+                    direction.x += jx
+                if abs(jy) > JOYSTICK_DEADZONE:
+                    direction.y += jy
+            except pygame.error:
+                pass
 
-        if keys[pygame.K_d]:
-            keyboard_dir.x += 1
+        if direction.length_squared() > 0:
+            direction = direction.normalize()
 
-        if keys[pygame.K_z]:
-            keyboard_dir.y -= 1
+        return direction
 
-        if keys[pygame.K_s]:
-            keyboard_dir.y += 1
-        
-        try:
-            joystick_dir = pygame.Vector2(self.joystick.get_axis(0),self.joystick.get_axis(1))
-        except AttributeError:
-            joystick_dir = pygame.Vector2(0, 0)
-
-        if abs(joystick_dir.x) < self.joystick_offset:
-            joystick_dir.x = 0
-
-        if abs(joystick_dir.y) < self.joystick_offset:
-            joystick_dir.y = 0
-
-        move_dir = keyboard_dir + joystick_dir
-
-        if move_dir.length() > 0:
-            move_dir = move_dir.normalize()
-
-        return move_dir
-
-
-    def update_direction(self, move_dir):
+    def update_look_direction(self, move_dir: pygame.Vector2):
+        """Met à jour le vecteur d'orientation et la direction du sprite."""
         self.look_direction = move_dir
 
-        if move_dir.x > self.joystick_offset and move_dir.y < -self.joystick_offset:
+        deadzone = JOYSTICK_DEADZONE
+        if move_dir.x > deadzone and move_dir.y < -deadzone:
             self.sprite_direction = "up_right"
-        elif move_dir.x < -self.joystick_offset and move_dir.y < -self.joystick_offset:
+        elif move_dir.x < -deadzone and move_dir.y < -deadzone:
             self.sprite_direction = "up_left"
-        elif move_dir.x > self.joystick_offset and move_dir.y > self.joystick_offset:
+        elif move_dir.x > deadzone and move_dir.y > deadzone:
             self.sprite_direction = "down_right"
-        elif move_dir.x < -self.joystick_offset and move_dir.y > self.joystick_offset:
+        elif move_dir.x < -deadzone and move_dir.y > deadzone:
             self.sprite_direction = "down_left"
         elif abs(move_dir.x) > abs(move_dir.y):
-            if move_dir.x > 0:
-                self.sprite_direction = "right"
-            else:
-                self.sprite_direction = "left"
+            self.sprite_direction = "right" if move_dir.x > 0 else "left"
         else:
-            if move_dir.y > 0:
-                self.sprite_direction = "down"
-            else:
-                self.sprite_direction = "up"
+            self.sprite_direction = "down" if move_dir.y > 0 else "up"
 
-
-
-    def handle_inputs(self, keys, dt):
-        if self.joystick:
-            shoot_pressed = (keys[pygame.K_l] or self.joystick.get_button(0))
-        else:
-            shoot_pressed = (keys[pygame.K_l])
-            
-        move_dir = self.get_move_direction(keys)
-
-        if shoot_pressed:
-            self.speed = self.base_speed*0.8
-        else:
-            self.speed = self.base_speed
-
-        if move_dir.length() > 0:
-            self.player_move(move_dir.x * self.speed * dt, move_dir.y * self.speed * dt)
-            self.hitbox.center = (self.rect.centerx, self.rect.centery + 10)
-
-            if not shoot_pressed:
-                self.update_direction(move_dir)
-                self.state = "walk"
-
-        else:
-            if not shoot_pressed:
-                self.state = "idle"
-
-        if shoot_pressed and self.shoot_timer <= 0:
-            self.shoot()
-            self.shoot_timer = self.shoot_cooldown
-
-
-
-    def update(self, dt):
+    def handle_inputs(self, dt: float, obstacles: pygame.sprite.Group, global_projectiles: pygame.sprite.Group):
+        """Gère les entrées utilisateur pour le déplacement et l'attaque."""
         keys = pygame.key.get_pressed()
 
-        self.shoot_timer -= dt
+        # Touches d'attaque : L, Espace ou bouton manette
+        shoot_pressed = keys[pygame.K_l] or keys[pygame.K_SPACE]
+        if self.joystick is not None:
+            try:
+                shoot_pressed = shoot_pressed or self.joystick.get_button(0)
+            except pygame.error:
+                pass
+
+        move_dir = self.get_movement_vector(keys)
+
+        # Ralentissement lors du tir continu
+        self.speed = self.base_speed * 0.8 if shoot_pressed else self.base_speed
+
+        if move_dir.length_squared() > 0:
+            dx = move_dir.x * self.speed * dt
+            dy = move_dir.y * self.speed * dt
+            self.move(dx, dy, obstacles)
+
+            if not shoot_pressed:
+                self.update_look_direction(move_dir)
+
+            if self.cast_timer <= 0:
+                self.state = "walk"
+        else:
+            if self.cast_timer <= 0:
+                self.state = "idle"
+
+        # Gestion du tir
+        if shoot_pressed and self.shoot_timer <= 0:
+            self.shoot(global_projectiles)
+            self.shoot_timer = self.shoot_cooldown
+
+    def update(self, dt: float, obstacles: pygame.sprite.Group, global_projectiles: pygame.sprite.Group):
+        """Mise à jour principale du joueur."""
+        if self.shoot_timer > 0:
+            self.shoot_timer -= dt
+
+        if self.invulnerable_timer > 0:
+            self.invulnerable_timer -= dt
+
+        if self.cast_timer > 0:
+            self.cast_timer -= dt
 
         if not self.dead:
-            self.handle_inputs(keys, dt)
+            self.handle_inputs(dt, obstacles, global_projectiles)
+
         self.animate(dt)
 
+    def draw(self, surface: pygame.Surface | None = None, debug: bool = False):
+        """Affiche le joueur, le réticule de visée et les éléments de débug si activés."""
+        target = surface if surface is not None else self.play_surface
 
-    def draw(self):
-        aim_distance = 100
-        aim_pos = self.rect.center + self.look_direction * aim_distance
+        # Clignotement en cas d'invulnérabilité
+        if self.invulnerable_timer > 0 and int(self.invulnerable_timer * 20) % 2 == 0:
+            return
 
-        pygame.draw.circle(self.play_surface, "white", aim_pos, 10,4)
+        # Réticule de visée directionnelle
+        aim_dist = 85
+        aim_pos = self.rect.center + self.look_direction * aim_dist
+        pygame.draw.circle(target, COLOR_WHITE, (round(aim_pos.x), round(aim_pos.y)), 6, 2)
 
-        # pygame.draw.rect(self.play_surface,"green",self.rect,2)
-        pygame.draw.rect(self.play_surface,"red",self.hitbox,2)
-        for proj in self.player_projectiles:
+        target.blit(self.image, self.rect)
 
-            if not hasattr(proj, "mask"):
-                pygame.draw.rect(self.play_surface,"red",proj.hitbox,2)
-
-        self.play_surface.blit(self.image, self.rect)
+        if debug:
+            pygame.draw.rect(target, COLOR_HITBOX_DEBUG, self.hitbox, 2)

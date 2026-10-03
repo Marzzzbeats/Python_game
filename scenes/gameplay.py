@@ -1,133 +1,175 @@
 import pygame
-import random
-
-from scenes.scene import Scene
+from core.constants import (
+    COLOR_BG,
+    COLOR_HITBOX_DEBUG,
+    COLOR_PLAY_AREA_BORDER,
+    DEBUG_MODE,
+    GAME_SURFACE_HEIGHT_RATIO,
+    GAME_SURFACE_WIDTH_RATIO,
+    OFFSET_X_RATIO,
+    OFFSET_Y_RATIO,
+    PLAY_AREA_H_RATIO,
+    PLAY_AREA_W_RATIO,
+    PLAY_AREA_X_RATIO,
+    PLAY_AREA_Y_RATIO,
+)
 from entities.player import Player
-from rooms.room import Room
+from rooms.room_manager import RoomManager
+from scenes.scene import Scene
+from systems.collision_system import CollisionSystem
+from ui.hud import HUD
+
 
 class Gameplay(Scene):
+    """Scène principale du jeu orchestrant le joueur, la salle courante, les collisions et l'interface."""
+
     def __init__(self, game):
         super().__init__(game)
 
+        screen_w, screen_h = self.game.screen.get_size()
 
-        GAME_WIDTH = game.screen.get_width() * 0.975
-        GAME_HEIGHT =  game.screen.get_height() * 0.85
-        self.play_surface = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
-        self.offset_x = self.game.screen.get_width() * 0.0125
-        self.offset_y = self.game.screen.get_height() * 0.025
-        
-        PLAY_AREA_X, PLAY_AREA_Y = 0.0449688, 0.1834696
-        PLAY_AREA_W, PLAY_AREA_H = 0.9105076, 0.6993642
+        # Surface de jeu intérieure et positionnement
+        game_width = screen_w * GAME_SURFACE_WIDTH_RATIO
+        game_height = screen_h * GAME_SURFACE_HEIGHT_RATIO
+        self.play_surface = pygame.Surface((game_width, game_height))
+        self.offset_x = screen_w * OFFSET_X_RATIO
+        self.offset_y = screen_h * OFFSET_Y_RATIO
 
+        # Aire de déplacement restreinte (à l'intérieur du cadre de jeu)
         self.play_area = pygame.Rect(
-            self.play_surface.get_width() * PLAY_AREA_X,
-            self.play_surface.get_height() * PLAY_AREA_Y,
-            self.play_surface.get_width() * PLAY_AREA_W,
-            self.play_surface.get_height() * PLAY_AREA_H
+            self.play_surface.get_width() * PLAY_AREA_X_RATIO,
+            self.play_surface.get_height() * PLAY_AREA_Y_RATIO,
+            self.play_surface.get_width() * PLAY_AREA_W_RATIO,
+            self.play_surface.get_height() * PLAY_AREA_H_RATIO
         )
-        
+
+        # Groupe global pour tous les projectiles (joueur + ennemis)
         self.all_projectiles = pygame.sprite.Group()
 
-        self.health_bar_frame_height = 150
-        self.health_bar_frame = pygame.image.load("assets/player/health_bar.png").convert_alpha()
-        self.health_bar_frame = pygame.transform.scale(self.health_bar_frame, (self.health_bar_frame_height*3, self.health_bar_frame_height))
-        self.health_font = pygame.font.Font(None, 28)
+        # Gestionnaire de salles et progression
+        self.room_manager = RoomManager("rooms.json")
+        self.current_room = self.room_manager.create_room(
+            tier=0,
+            room_index=0,
+            play_surface=self.play_surface,
+            play_area=self.play_area
+        )
 
-        self.attack_image = pygame.image.load("assets/misc/attack.png").convert_alpha()
-        self.attack_image = pygame.transform.scale(self.attack_image, (200, 200))
-        self.alpha_layer_attack = pygame.Surface(self.attack_image.get_size(), pygame.SRCALPHA)
+        # Joueur
+        self.player = Player(self.play_surface, self.play_area)
 
-        self.game_over_alpha = 0
-        self.game_over_speed = 100
-        self.game_over_image = pygame.image.load("assets/scenes/game_over.png").convert_alpha()
-        self.game_over_image = pygame.transform.scale(self.game_over_image,self.game.screen.get_size())
+        # Interface HUD
+        self.hud = HUD(self.game.screen.get_size())
 
-        self.death_timer = 0
-        self.death_fade_delay = 0.8
+        # Mode débug (activable / désactivable via F3)
+        self.debug_mode = DEBUG_MODE
 
-        self.tier = 0
-        self.room_id = random.randint(0,0)
-        self.room = Room(self, self.tier, self.room_id)
+    def restart_game(self):
+        """Réinitialise la partie après un Game Over."""
+        self.all_projectiles.empty()
+        self.current_room = self.room_manager.reset(self.play_surface, self.play_area)
+        self.player = Player(self.play_surface, self.play_area)
+        self.hud.reset_game_over()
 
-        self.player = Player(self)
+    def advance_to_next_room(self):
+        """Passe à la salle suivante tout en conservant l'état du joueur."""
+        self.all_projectiles.empty()
+        self.current_room = self.room_manager.next_room(self.play_surface, self.play_area)
+        # Recentrer le joueur sur la nouvelle salle
+        self.player.rect.center = self.play_surface.get_rect().center
+        self.player.sync_hitbox()
 
-    def draw_attack_cooldown(self, screen):
-        attack_image_width = self.attack_image.get_width()
-        attack_image_height = self.attack_image.get_height()
-        x = (screen.get_width() - attack_image_width) // 2
-        y = screen.get_height() - attack_image_height - 30
-        screen.blit(self.attack_image, (x, y))
-        self.alpha_layer_attack.fill((0, 0, 0, 0))
-        square_x = 45
-        square_y = 38
-        square_size = attack_image_width - 90
-        ratio = self.player.shoot_timer / self.player.shoot_cooldown
-        current_height = int(square_size * ratio)
-        current_y = square_y + square_size - current_height
-        attack_cool_rect = pygame.Rect(square_x,current_y,square_size,current_height)
-        pygame.draw.rect(self.alpha_layer_attack,(200, 200, 200, 120),attack_cool_rect)
-        screen.blit(self.alpha_layer_attack, (x, y))
-
-
-    def draw_health_bar(self, screen):
-        offset = 50
-        x = 0 + offset
-        y = screen.get_height() - self.health_bar_frame_height - offset
-        frame_rect = self.health_bar_frame.get_rect(topleft=(x, y))
-        bar_x = frame_rect.x + 90
-        bar_y = frame_rect.y + 50
-        max_width = 320
-        bar_height = 40
-        health_ratio = self.player.hp / self.player.max_hp
-        current_width = max_width * health_ratio
-        health_rect = pygame.Rect(bar_x,bar_y,current_width,bar_height)
-
-        full_bar_rect = pygame.Rect(bar_x, bar_y, max_width, bar_height)
-        text = self.health_font.render(f"{self.player.hp}/{self.player.max_hp}", True, "white")
-        text_rect = text.get_rect(center=full_bar_rect.center)
-        self.health_font = pygame.font.Font(None, 28)
-
-        pygame.draw.rect(screen, "red", health_rect)
-        screen.blit(text, text_rect)
-        screen.blit(self.health_bar_frame, frame_rect)
-
-
-    def update_death_transition(self, dt):
-        self.game_over_alpha += (300 + self.game_over_alpha * 0.08) * dt
-        if self.game_over_alpha >= 255:
-            self.game_over_alpha = 255
-
-
-    def handle_events(self, event):
+    def handle_events(self, event: pygame.event.Event):
         super().handle_events(event)
 
+        if event.type == pygame.KEYDOWN:
+            # Touche F3 : bascule du mode débug
+            if event.key == pygame.K_F3:
+                self.debug_mode = not self.debug_mode
 
-    def update(self, dt):
-            if self.player.dead:
-                self.death_timer += dt
-                self.player.update(dt)
-                if self.death_timer >= self.death_fade_delay:
-                    self.update_death_transition(dt)
-                return
-                
-            self.player.update(dt)
-            self.all_projectiles.update(dt)
-            self.room.update(dt)
+            # Touche R : recommencer
+            elif event.key == pygame.K_r and self.player.dead:
+                self.restart_game()
 
-    
+            # Touche N : passer à la salle suivante si la salle est nettoyée
+            elif event.key == pygame.K_n and self.current_room.is_cleared():
+                self.advance_to_next_room()
+
+    def update(self, dt: float):
+        # En cas de mort du joueur, seule son animation finale et le fondu continuent
+        if self.player.dead:
+            self.player.animate(dt)
+            return
+
+        # Mise à jour du joueur
+        self.player.update(dt, self.current_room.obstacles, self.all_projectiles)
+
+        # Mise à jour de la salle et des ennemis
+        self.current_room.update(dt, self.player, self.all_projectiles)
+
+        # Mise à jour des projectiles
+        self.all_projectiles.update(dt)
+
+        # Détection et résolution des collisions via le CollisionSystem
+        CollisionSystem.handle_player_projectiles_vs_enemies(
+            self.player.player_projectiles,
+            self.current_room.enemies
+        )
+        CollisionSystem.handle_enemy_projectiles_vs_player(
+            self.all_projectiles,
+            self.player
+        )
+        CollisionSystem.handle_projectiles_vs_obstacles(
+            self.all_projectiles,
+            self.current_room.obstacles
+        )
+        CollisionSystem.handle_player_vs_enemies_contact(
+            self.player,
+            self.current_room.enemies
+        )
+
     def draw(self):
-        self.game.screen.fill(pygame.Color("#0f0e1f"))
-        # self.play_surface.fill("black")
+        # Arrière-plan de la fenêtre
+        self.game.screen.fill(COLOR_BG)
 
-        self.room.draw()
-        self.player.draw()
+        # 1. Rendu de la salle (fond, obstacles, ennemis)
+        self.current_room.draw(self.play_surface, debug=self.debug_mode)
+
+        # 2. Rendu du joueur
+        self.player.draw(self.play_surface, debug=self.debug_mode)
+
+        # 3. Rendu des projectiles
         self.all_projectiles.draw(self.play_surface)
 
-        pygame.draw.rect(self.play_surface, "pink", self.play_area, 2)
-        self.game.screen.blit(self.play_surface, (self.offset_x, self.offset_y))
-        self.draw_health_bar(self.game.screen)
-        self.draw_attack_cooldown(self.game.screen)
+        # 4. Rendu de la bordure d'aire de jeu (en débug ou léger contour)
+        if self.debug_mode:
+            pygame.draw.rect(self.play_surface, COLOR_PLAY_AREA_BORDER, self.play_area, 2)
+            for proj in self.all_projectiles:
+                pygame.draw.rect(self.play_surface, COLOR_HITBOX_DEBUG, proj.hitbox, 1)
 
+        # 5. Affichage de la surface de jeu sur l'écran principal
+        self.game.screen.blit(self.play_surface, (self.offset_x, self.offset_y))
+
+        # 6. Éléments d'interface HUD
+        self.hud.draw_health_bar(self.game.screen, self.player.hp, self.player.max_hp)
+        self.hud.draw_attack_cooldown(self.game.screen, self.player.shoot_timer, self.player.shoot_cooldown)
+
+        total_rooms = self.room_manager.get_room_count(self.room_manager.current_tier)
+        self.hud.draw_room_info(
+            screen=self.game.screen,
+            tier=self.room_manager.current_tier,
+            room_id=self.room_manager.current_room_index,
+            total_rooms=total_rooms,
+            enemy_count=len(self.current_room.enemies),
+            is_cleared=self.current_room.is_cleared()
+        )
+
+        # 7. Écran de Game Over si le joueur est mort
         if self.player.dead:
-            self.game_over_image.set_alpha(int(self.game_over_alpha))
-            self.game.screen.blit(self.game_over_image, (0, 0))
+            dt = self.game.clock.get_time() / 1000.0
+            self.hud.draw_game_over(self.game.screen, dt)
+
+        # 8. Overlay de debug FPS / Entités
+        fps = self.game.clock.get_fps()
+        total_entities = 1 + len(self.current_room.enemies) + len(self.current_room.obstacles) + len(self.all_projectiles)
+        self.hud.draw_debug_overlay(self.game.screen, fps, total_entities, self.debug_mode)
