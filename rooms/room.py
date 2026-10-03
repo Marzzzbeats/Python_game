@@ -115,11 +115,12 @@ class Room:
         for projectile, enemies_hit in collisions.items():
             for enemy in enemies_hit:
                 indice = enemy.take_damage(projectile.damage)
-                if indice != -1 :
-                    for i in len(self.current_enemies) :
+                if indice != -1 and self.current_enemy_count >0:
+                    print("mort")
+                    self.current_enemy_count -=1
+                    for i in range(len(self.current_enemies)) :
                         if self.current_enemies[i]["id"] == indice:
                             self.current_enemies.pop(i)
-                            self.current_enemy_count -=1
 
 
     def check_enemy_projectiles_collisions(self):
@@ -146,15 +147,8 @@ class Room:
 
     def init_spawn_enemies(self):
         self.total_enemies = self.load_from_room("enemies")
+        print(self.total_enemies)
         self.max_enemies = self.load_from_room("max_enemies")
-        # for room_enemy in room_enemies:
-        #     for _ in range(room_enemy["count"]):
-        #         while self.current_enemy_count >= room_max_enemies:
-        #             print("wait")
-        #         pos = self.place_relative_play_area(50, 100)
-        #         enemy = ENEMIES_CLASS[room_enemy["class"]](self.gameplay, self.all_enemies_projectile, pos, 10, 1, 5)
-        #         self.all_enemies.add(enemy)
-        #         self.current_enemy_count +=1
 
 
     def spawn_obstacles(self):
@@ -180,10 +174,10 @@ class Room:
 
         
     def update(self, dt):
+        self.spawn_enemies()
         self.check_player_projectiles_collisions()
         self.check_enemy_projectiles_collisions()
         self.check_projectiles_collisions_obstacle()
-        self.spawn_enemies()
         if not self.gameplay.player.dead:
             self.all_enemies.update(dt)
 
@@ -193,10 +187,14 @@ class Room:
 
 
     def spawn_enemies(self):
-        if not self.check_enemies_count() :
-            self.total_enemies = rd.shuffle(self.total_enemies)
+        print(self.current_enemy_count)
+        print(self.current_enemies)
+        print(self.total_enemies)
+        if not self.check_enemies_count() and self.total_enemies != []:
+            rd.shuffle(self.total_enemies)
+            print(self.total_enemies)
             enemy_type = self.total_enemies[0]
-            pos = self.place_relative_play_area(rd.randint(130,200), (235, 900))
+            pos = self.place_relative_play_area(rd.randint(130,2000), rd.randint(235, 300))
             enemy = ENEMIES_CLASS[enemy_type["class"]](self.gameplay, self.all_enemies_projectile, pos, 10, 1, 5, self.id_enemies)
             self.all_enemies.add(enemy)
             if enemy_type["count"] == 1 :

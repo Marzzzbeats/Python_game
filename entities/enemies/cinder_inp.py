@@ -4,13 +4,13 @@ from entities.projectiles.enemy_projectile.ball import BallProjectile
 
 
 class CinderImp(Enemy):
-    def __init__(self, gameplay, all_enemies_projectile, pos, speed, damage, max_life):
+    def __init__(self, gameplay, all_enemies_projectile, pos, speed, damage, max_life, id):
         self.gameplay = gameplay
         self.all_enemies_projectile = all_enemies_projectile
         image = pygame.image.load("assets/enemies/cinder_imp.png").convert_alpha()
         image = pygame.transform.scale_by(image, 0.6)
 
-        super().__init__(gameplay, pos, image, speed, damage, max_life)
+        super().__init__(gameplay, pos, image, speed, damage, max_life, id)
 
 
     def find_player_direction(self, player):
