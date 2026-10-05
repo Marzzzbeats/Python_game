@@ -1,4 +1,5 @@
 import pygame
+from core.constants import DEBUG_MODE
 
 
 def collide_hitbox(a: pygame.sprite.Sprite, b: pygame.sprite.Sprite) -> bool:
@@ -40,7 +41,7 @@ class CollisionSystem:
     @staticmethod
     def handle_enemy_projectiles_vs_player(enemy_projectiles: pygame.sprite.Group, player):
         """Gère l'impact des projectiles ennemis sur le joueur."""
-        if player.dead:
+        if player.dead or DEBUG_MODE:
             return
 
         hits = pygame.sprite.spritecollide(

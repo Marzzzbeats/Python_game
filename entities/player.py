@@ -3,6 +3,7 @@ from core.asset_manager import AssetManager
 from core.constants import (
     COLOR_HITBOX_DEBUG,
     COLOR_WHITE,
+    DEBUG_MODE,
     JOYSTICK_DEADZONE,
     PLAYER_BASE_SPEED,
     PLAYER_FIRE_RATE,
@@ -42,6 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.max_hp = PLAYER_MAX_HP
         self.hp = self.max_hp
         self.damage = PLAYER_PROJECTILE_DAMAGE
+        
         self.fire_rate = PLAYER_FIRE_RATE
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0.0
@@ -176,6 +178,7 @@ class Player(pygame.sprite.Sprite):
             damage=self.damage
         )
 
+        print(self.damage)
         target_group.add(projectile)
         self.player_projectiles.add(projectile)
 
@@ -277,6 +280,11 @@ class Player(pygame.sprite.Sprite):
 
         if not self.dead:
             self.handle_inputs(dt, obstacles, global_projectiles)
+
+        if DEBUG_MODE:
+            self.damage = 100000000
+        else:
+            self.damage = PLAYER_PROJECTILE_DAMAGE
 
         self.animate(dt)
 

@@ -18,7 +18,7 @@ class Projectile(pygame.sprite.Sprite):
     ):
         super().__init__()
 
-        self.screen = play_surface
+        self.screen = play_surface  #Change nous ça baptiste
         self.pos = pygame.Vector2(pos)
 
         dir_vec = pygame.Vector2(direction)

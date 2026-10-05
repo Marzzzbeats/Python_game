@@ -61,9 +61,6 @@ class Gameplay(Scene):
         # Interface HUD
         self.hud = HUD(self.game.screen.get_size())
 
-        # Mode débug (activable / désactivable via F3)
-        self.debug_mode = DEBUG_MODE
-
     def restart_game(self):
         """Réinitialise la partie après un Game Over."""
         self.all_projectiles.empty()
@@ -85,7 +82,10 @@ class Gameplay(Scene):
         if event.type == pygame.KEYDOWN:
             # Touche F3 : bascule du mode débug
             if event.key == pygame.K_F3:
-                self.debug_mode = not self.debug_mode
+                if DEBUG_MODE:
+                    DEBUG_MODE.pop()
+                else:
+                    DEBUG_MODE.append(1)
 
             # Touche R : recommencer
             elif event.key == pygame.K_r and self.player.dead:
@@ -133,16 +133,17 @@ class Gameplay(Scene):
         self.game.screen.fill(COLOR_BG)
 
         # 1. Rendu de la salle (fond, obstacles, ennemis)
-        self.current_room.draw(self.play_surface, debug=self.debug_mode)
+        self.current_room.draw(self.play_surface, DEBUG_MODE)
 
         # 2. Rendu du joueur
-        self.player.draw(self.play_surface, debug=self.debug_mode)
+        self.player.draw(self.play_surface, DEBUG_MODE)
 
         # 3. Rendu des projectiles
-        self.all_projectiles.draw(self.play_surface)
+        self.player.player_projectiles.draw(self.play_surface)
+        self.current_room.enemy_projectiles.draw(self.play_surface)
 
         # 4. Rendu de la bordure d'aire de jeu (en débug ou léger contour)
-        if self.debug_mode:
+        if DEBUG_MODE:
             pygame.draw.rect(self.play_surface, COLOR_PLAY_AREA_BORDER, self.play_area, 2)
             for proj in self.all_projectiles:
                 pygame.draw.rect(self.play_surface, COLOR_HITBOX_DEBUG, proj.hitbox, 1)
@@ -172,4 +173,4 @@ class Gameplay(Scene):
         # 8. Overlay de debug FPS / Entités
         fps = self.game.clock.get_fps()
         total_entities = 1 + len(self.current_room.enemies) + len(self.current_room.obstacles) + len(self.all_projectiles)
-        self.hud.draw_debug_overlay(self.game.screen, fps, total_entities, self.debug_mode)
+        self.hud.draw_debug_overlay(self.game.screen, fps, total_entities, DEBUG_MODE)
