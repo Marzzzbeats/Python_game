@@ -120,7 +120,11 @@ class Gameplay(Scene):
             self.player
         )
         CollisionSystem.handle_projectiles_vs_obstacles(
-            self.all_projectiles,
+            self.player.player_projectiles,
+            self.current_room.obstacles
+        )
+        CollisionSystem.handle_projectiles_vs_obstacles(
+            self.current_room.enemy_projectiles,
             self.current_room.obstacles
         )
         CollisionSystem.handle_player_vs_enemies_contact(
