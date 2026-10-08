@@ -26,7 +26,7 @@ class RoomManager:
         tier_data = self.data.get("tiers", {}).get(str(tier), {})
         return len(tier_data.get("rooms", []))
 
-    def create_room(self, tier: int, room_index: int, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager) -> Room:
+    def create_room(self, tier: int, room_index: int, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager, player_upgrades: dict) -> Room:
         """Instancie la salle correspondant au tier et à l'index donnés."""
         tier_data = self.data.get("tiers", {}).get(str(tier), {})
         rooms = tier_data.get("rooms", [])
@@ -34,14 +34,14 @@ class RoomManager:
         if not rooms:
             # Salle vide par défaut en cas d'absence de données
             fallback_data = {"id": 0, "enemies": [], "layout": ["." * 16] * 6}
-            return Room(fallback_data, play_surface, play_area, reward_manager)
+            return Room(fallback_data, play_surface, play_area, reward_manager, player_upgrades)
 
         # Index sécurisé avec modulo
         safe_index = room_index % len(rooms)
         room_data = rooms[safe_index]
-        return Room(room_data, play_surface, play_area, reward_manager)
+        return Room(room_data, play_surface, play_area, reward_manager, player_upgrades)
 
-    def next_room(self, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager) -> Room:
+    def next_room(self, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager, player_upgrades: dict) -> Room:
         """Passe à la salle suivante."""
         self.current_room_index += 1
         max_rooms = self.get_room_count(self.current_tier)
@@ -49,9 +49,9 @@ class RoomManager:
             # Si toutes les salles du tier sont finies, recommence ou passe au tier suivant
             self.current_room_index = 0
 
-        return self.create_room(self.current_tier, self.current_room_index, play_surface, play_area, reward_manager)
+        return self.create_room(self.current_tier, self.current_room_index, play_surface, play_area, reward_manager, player_upgrades)
 
-    def reset(self, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager) -> Room:
+    def reset(self, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager, player_upgrades: dict) -> Room:
         """Réinitialise la progression à la première salle."""
         self.current_room_index = 0
-        return self.create_room(self.current_tier, self.current_room_index, play_surface, play_area, reward_manager)
+        return self.create_room(self.current_tier, self.current_room_index, play_surface, play_area, reward_manager, player_upgrades)

@@ -4,27 +4,34 @@
         "name": "Vitalité",
         "stat": "max_hp",
         "bonus": 1,
-        "max_stacks": 5
+        "max_stacks": 1
     },
     "speed": {
         "type" : "stat",
         "name": "Agilité",
         "stat": "speed",
         "bonus": 25,
-        "max_stacks": 3
+        "max_stacks": 1
     },
     "damage": {
         "type" : "stat",
         "name": "Puissance",
         "stat": "damage",
         "bonus": 1,
-        "max_stacks": 5
+        "max_stacks": 1
     },
     "fire_rate": {
         "type" : "stat",
         "name": "Tir rapide",
         "stat": "fire_rate",
         "bonus": 0.5,
-        "max_stacks": 5
+        "max_stacks": 1
+    },
+    "heal": {
+        "type" : "consumable",
+        "name": "Soin instantané",
+        "stat": "hp",
+        "bonus": 0.2,
+        "max_stacks": -1
     }
 }

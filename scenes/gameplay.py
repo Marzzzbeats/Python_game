@@ -50,6 +50,9 @@ class Gameplay(Scene):
         # Gestionnaire des rewards
         self.reward_manager = RewardManager()
 
+        # Joueur
+        self.player = Player(self.play_surface, self.play_area)
+
         # Gestionnaire de salles et progression
         self.room_manager = RoomManager("rooms.json")
         self.current_room = self.room_manager.create_room(
@@ -57,12 +60,10 @@ class Gameplay(Scene):
             room_index=0,
             play_surface=self.play_surface,
             play_area=self.play_area,
-            reward_manager = self.reward_manager
+            reward_manager=self.reward_manager,
+            player_upgrades=self.player.upgrades
         )
         self.transitioning = False
-
-        # Joueur
-        self.player = Player(self.play_surface, self.play_area)
 
         # Interface HUD
         self.hud = HUD(self.game.screen.get_size())
@@ -70,14 +71,14 @@ class Gameplay(Scene):
     def restart_game(self):
         """Réinitialise la partie après un Game Over."""
         self.all_projectiles.empty()
-        self.current_room = self.room_manager.reset(self.play_surface, self.play_area, self.reward_manager)
+        self.current_room = self.room_manager.reset(self.play_surface, self.play_area, self.reward_manager, self.player.upgrades)
         self.player = Player(self.play_surface, self.play_area)
         self.hud.reset_game_over()
 
     def advance_to_next_room(self):
         """Passe à la salle suivante tout en conservant l'état du joueur."""
         self.all_projectiles.empty()
-        self.current_room = self.room_manager.next_room(self.play_surface, self.play_area, self.reward_manager)
+        self.current_room = self.room_manager.next_room(self.play_surface, self.play_area, self.reward_manager, self.player.upgrades)
         # Recentrer le joueur sur la nouvelle salle
         self.player.rect.center = self.play_surface.get_rect().center
         self.player.sync_hitbox()

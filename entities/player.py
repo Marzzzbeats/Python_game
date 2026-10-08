@@ -248,6 +248,10 @@ class Player(pygame.sprite.Sprite):
 
         for upgrade_id, count in self.upgrades.items():
             data = self.upgrades_data[upgrade_id]
+            
+            if data["type"] != "stat":
+                continue
+            
             stat = data["stat"]
             bonus = data["bonus"] * count
 
@@ -258,12 +262,26 @@ class Player(pygame.sprite.Sprite):
         self.hp = min(self.hp, self.max_hp)
 
 
+    def _handle_consumable(self, upgrade_id: str) -> None:
+        """Applique l'effet d'un consommable."""
+        if upgrade_id == "heal":
+            bonus = self.upgrades_data[upgrade_id]["bonus"]
+            self.hp = round(min(self.max_hp, self.hp + self.max_hp * bonus))
+
+
     def add_upgrade(self, upgrade_id: str, upgrade_data: dict) -> None:
         """Ajoute un upgrade et actualise les stats."""
         self.upgrades_data[upgrade_id] = upgrade_data.copy()
         self.upgrades[upgrade_id] = self.upgrades.get(upgrade_id, 0) + 1
-        self._recalculate_stats()
-
+        upgrade_type = self.upgrades_data[upgrade_id]["type"]
+        if upgrade_type == "stat":
+            self._recalculate_stats()
+        elif upgrade_type == "consumable":
+            self._handle_consumable(upgrade_id)
+        elif upgrade_type == "attack_type":
+            pass
+        elif upgrade_type == "spell":
+            pass
 
     def handle_inputs(self, dt: float, obstacles: pygame.sprite.Group, global_projectiles: pygame.sprite.Group):
         """Gère les entrées utilisateur pour le déplacement et l'attaque."""

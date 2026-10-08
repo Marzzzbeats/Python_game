@@ -10,7 +10,7 @@ from entities.interactables.door import Door
 class Room:
     """Représente une salle de donjon avec son décor, ses obstacles et ses ennemis."""
 
-    def __init__(self, room_data: dict, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager):
+    def __init__(self, room_data: dict, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager, player_upgrades: dict):
         self.room_id = room_data.get("id", 0)
         self.play_surface = play_surface
         self.play_area = play_area
@@ -27,7 +27,7 @@ class Room:
         )
 
         # Portes des améliorations
-        self.doors: list[Door] =  self._create_doors()
+        self.doors: list[Door] =  self._create_doors(player_upgrades)
         self.selected_door: Door | None = None
 
         # Grille dynamique calculée selon le layout JSON
@@ -51,19 +51,20 @@ class Room:
         center_y = self.grid_y + (row + 0.5) * self.tile_size
         return center_x, center_y
 
-    def _create_doors(self) -> list[Door]:
+    def _create_doors(self, player_upgrades: dict) -> list[Door]:
         """Crée et positionne les trois portes."""
         height = max(1, self.play_area.top)
         width = round(height * 1)
+        rdn_upgrades = self.reward_manager.get_random_rewards(player_upgrades)
 
         return [
             Door(
                 size=(width, height),
                 centerx=self.background.get_width() * x_rel,
                 bottom=self.play_area.top,
-                reward=self.reward_manager.get_random_reward()
+                reward=rdn_upgrades[i]
             )
-            for x_rel in (0.23, 0.5, 0.77)
+            for i,x_rel in enumerate([0.23, 0.5, 0.77])
         ]
 
     def _spawn_obstacles(self, layout: list[str]):

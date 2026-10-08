@@ -18,9 +18,16 @@ class RewardManager:
         with open(self.json_path, "r", encoding="utf-8") as f:
             return json.load(f)
 
-    def get_random_reward(self) -> str | None:
-        """Renvoie l'identifiant d'un upgrade aléatoire."""
-        if not self.data:
-            return None
+    def get_random_rewards(self, player_upgrades: dict[str, int], count: int = 3) -> list[str]:
+        """Renvoie des upgrades différents qui ne sont pas au maximum."""
+        available = [
+            upgrade_id
+            for upgrade_id, data in self.data.items()
+            if upgrade_id != "heal" and player_upgrades.get(upgrade_id, 0) < data["max_stacks"]
+        ]
 
-        return random.choice(list(self.data))
+        rewards = random.sample(available, min(count, len(available)))
+        while len(rewards) < count:
+            rewards.append("heal")
+
+        return rewards
