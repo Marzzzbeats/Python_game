@@ -52,6 +52,8 @@ class Player(pygame.sprite.Sprite):
         self.shoot_timer = 0.0
         self.dead = False
 
+        self.attack_type = Base
+
         self.upgrades: dict[str, int] = {}
         self.upgrades_data = {}
 
@@ -175,7 +177,7 @@ class Player(pygame.sprite.Sprite):
         self.state = "cast"
         self.cast_timer = self.cast_duration
 
-        projectile = Base(
+        projectile = self.attack_type(
             screen=self.play_surface,
             pos=self.rect.center,
             direction=self.look_direction,
