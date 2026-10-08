@@ -1,23 +1,27 @@
 {
     "vitality": {
+        "type" : "stat",
         "name": "Vitalité",
         "stat": "max_hp",
         "bonus": 1,
         "max_stacks": 5
     },
     "speed": {
+        "type" : "stat",
         "name": "Agilité",
         "stat": "speed",
         "bonus": 25,
         "max_stacks": 3
     },
     "damage": {
+        "type" : "stat",
         "name": "Puissance",
         "stat": "damage",
         "bonus": 1,
         "max_stacks": 5
     },
     "fire_rate": {
+        "type" : "stat",
         "name": "Tir rapide",
         "stat": "fire_rate",
         "bonus": 0.5,

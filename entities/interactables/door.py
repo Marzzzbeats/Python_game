@@ -21,12 +21,20 @@ class Door:
             midbottom=(round(centerx), round(bottom))
         )
 
+        # Image de l'upgrade
+        icon_size = (round(self.rect.width*0.35), round(self.rect.height*0.35))
+        self.upgrade_icon = AssetManager.get_image(
+            f"assets/rewards/upgrade_icons/{reward}.png",
+            scale=icon_size
+        )
+        self.upgrade_rect = self.upgrade_icon.get_rect(midtop=self.rect.center)
+
         # Etat de la porte
         self.is_open = False
         self.reward_id: str | None = reward
 
         self.animation_timer = 0.0
-        self.frame_duration = 0.08  # Secondes entre deux frames
+        self.frame_duration = 0.04  # Secondes entre deux frames
 
         # Zone d'entrée placée juste devant la porte
         self.trigger_rect = pygame.Rect(0, 0, self.rect.width, 50)
@@ -74,6 +82,9 @@ class Door:
     def draw(self, surface: pygame.Surface, debug: bool = False) -> None:
         """Affiche la porte et sa zone d'entrée si le débug est activé."""
         surface.blit(self.image, self.rect)
+
+        if self.is_open:
+            surface.blit(self.upgrade_icon, self.upgrade_rect)
 
         if debug:
             pygame.draw.rect(

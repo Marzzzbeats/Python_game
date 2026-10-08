@@ -89,8 +89,6 @@ class Gameplay(Scene):
             self.transitioning = True
             self.player.add_upgrade(door.reward_id, self.reward_manager.data[door.reward_id])
             self.advance_to_next_room()
-            print(self.player.upgrades)
-            print(self.player.upgrades_data)
 
     def handle_events(self, event: pygame.event.Event):
         super().handle_events(event)
@@ -106,10 +104,6 @@ class Gameplay(Scene):
             # Touche R : recommencer
             elif event.key == pygame.K_r and self.player.dead:
                 self.restart_game()
-
-            # Touche N : passer à la salle suivante si la salle est nettoyée
-            elif event.key == pygame.K_n and self.current_room.is_cleared():
-                self.advance_to_next_room()
 
     def update(self, dt: float):
         # En cas de mort du joueur, seule son animation finale et le fondu continuent
