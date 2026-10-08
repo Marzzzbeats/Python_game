@@ -2,10 +2,11 @@ import pygame
 from core.constants import COLOR_HITBOX_DEBUG, SECONDARY_COLOR_HITBOX_DEBUG
 from core.asset_manager import AssetManager
 
+
 class Door:
     """Représente une porte avec sa zone d'entrée et sa récompense."""
 
-    def __init__(self, size: tuple[int, int], centerx: float, bottom: float) -> None:
+    def __init__(self, size: tuple[int, int], centerx: float, bottom: float, reward: str) -> None:
         # Frames d'une porte
         self.frames = [
             AssetManager.get_image(
@@ -22,7 +23,7 @@ class Door:
 
         # Etat de la porte
         self.is_open = False
-        self.reward_id: str | None = None
+        self.reward_id: str | None = reward
 
         self.animation_timer = 0.0
         self.frame_duration = 0.08  # Secondes entre deux frames
@@ -37,16 +38,16 @@ class Door:
         )
         self.entry_rect.midtop = self.rect.midbottom
 
-    def can_enter(self, player_rect: pygame.Rect) -> bool:
+    def can_enter(self, player_hitbox: pygame.Rect) -> bool:
         """Indique si le joueur entre dans la porte ouverte."""
         return (
             self.is_open
-            and self.entry_rect.colliderect(player_rect)
-        )
+            and self.entry_rect.colliderect(player_hitbox)
+        )        
 
-    def update(self, dt: float, player_rect: pygame.Rect, enabled: bool) -> None:
+    def update(self, dt: float, player_hitbox: pygame.Rect, enabled: bool) -> None:
         """Anime l'ouverture ou la fermeture selon la position du joueur."""
-        player_inside = (enabled and self.trigger_rect.colliderect(player_rect))
+        player_inside = (enabled and self.trigger_rect.colliderect(player_hitbox))
         target_frame = len(self.frames) - 1 if player_inside else 0
 
         if self.frame_index == target_frame:

@@ -40,14 +40,20 @@ class Player(pygame.sprite.Sprite):
         # Caractéristiques
         self.base_speed = PLAYER_BASE_SPEED
         self.speed = self.base_speed
-        self.max_hp = PLAYER_MAX_HP
+        self.base_max_hp = PLAYER_MAX_HP
+        self.max_hp = self.base_max_hp
         self.hp = self.max_hp
-        self.damage = PLAYER_PROJECTILE_DAMAGE
+        self.base_damage = PLAYER_PROJECTILE_DAMAGE
+        self.damage = self.base_damage
+        self.base_fire_rate = PLAYER_FIRE_RATE
+        self.fire_rate = self.base_fire_rate
         
-        self.fire_rate = PLAYER_FIRE_RATE
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0.0
         self.dead = False
+
+        self.upgrades: dict[str, int] = {}
+        self.upgrades_data = {}
 
         # Invulnérabilité temporaire après dégâts
         self.invulnerable_timer = 0.0
@@ -175,7 +181,7 @@ class Player(pygame.sprite.Sprite):
             direction=self.look_direction,
             owner="player",
             speed=PLAYER_PROJECTILE_SPEED,
-            damage=self.damage
+            damage=100000000 if DEBUG_MODE else self.damage
         )
 
         target_group.add(projectile)
@@ -230,6 +236,33 @@ class Player(pygame.sprite.Sprite):
         else:
             self.sprite_direction = "down" if move_dir.y > 0 else "up"
 
+
+    def _recalculate_stats(self) -> None:
+        """Recalcule les stats depuis les valeurs de base."""
+        self.speed = self.base_speed
+        self.max_hp = self.base_max_hp
+        self.damage = self.base_damage
+        self.fire_rate = self.base_fire_rate
+
+        for upgrade_id, count in self.upgrades.items():
+            data = self.upgrades_data[upgrade_id]
+            stat = data["stat"]
+            bonus = data["bonus"] * count
+
+            current_value = getattr(self, stat)
+            setattr(self, stat, current_value + bonus)
+
+        self.shoot_cooldown = 1.0 / self.fire_rate
+        self.hp = min(self.hp, self.max_hp)
+
+
+    def add_upgrade(self, upgrade_id: str, upgrade_data: dict) -> None:
+        """Ajoute un upgrade et actualise les stats."""
+        self.upgrades_data[upgrade_id] = upgrade_data.copy()
+        self.upgrades[upgrade_id] = self.upgrades.get(upgrade_id, 0) + 1
+        self._recalculate_stats()
+
+
     def handle_inputs(self, dt: float, obstacles: pygame.sprite.Group, global_projectiles: pygame.sprite.Group):
         """Gère les entrées utilisateur pour le déplacement et l'attaque."""
         keys = pygame.key.get_pressed()
@@ -245,11 +278,11 @@ class Player(pygame.sprite.Sprite):
         move_dir = self.get_movement_vector(keys)
 
         # Ralentissement lors du tir continu
-        self.speed = self.base_speed * 0.8 if shoot_pressed else self.base_speed
+        move_speed = self.speed * 0.8 if shoot_pressed else self.speed
 
         if move_dir.length_squared() > 0:
-            dx = move_dir.x * self.speed * dt
-            dy = move_dir.y * self.speed * dt
+            dx = move_dir.x * move_speed * dt
+            dy = move_dir.y * move_speed * dt
             self.move(dx, dy, obstacles)
 
             if not shoot_pressed:
@@ -279,11 +312,6 @@ class Player(pygame.sprite.Sprite):
 
         if not self.dead:
             self.handle_inputs(dt, obstacles, global_projectiles)
-
-        if DEBUG_MODE:
-            self.damage = 100000000
-        else:
-            self.damage = PLAYER_PROJECTILE_DAMAGE
 
         self.animate(dt)
 

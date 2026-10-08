@@ -15,6 +15,7 @@ from core.constants import (
 )
 from entities.player import Player
 from rooms.room_manager import RoomManager
+from entities.interactables.reward_manager import RewardManager
 from scenes.scene import Scene
 from systems.collision_system import CollisionSystem
 from ui.hud import HUD
@@ -46,13 +47,17 @@ class Gameplay(Scene):
         # Groupe global pour tous les projectiles (joueur + ennemis)
         self.all_projectiles = pygame.sprite.Group()
 
+        # Gestionnaire des rewards
+        self.reward_manager = RewardManager()
+
         # Gestionnaire de salles et progression
         self.room_manager = RoomManager("rooms.json")
         self.current_room = self.room_manager.create_room(
             tier=0,
             room_index=0,
             play_surface=self.play_surface,
-            play_area=self.play_area
+            play_area=self.play_area,
+            reward_manager = self.reward_manager
         )
         self.transitioning = False
 
@@ -65,14 +70,14 @@ class Gameplay(Scene):
     def restart_game(self):
         """Réinitialise la partie après un Game Over."""
         self.all_projectiles.empty()
-        self.current_room = self.room_manager.reset(self.play_surface, self.play_area)
+        self.current_room = self.room_manager.reset(self.play_surface, self.play_area, self.reward_manager)
         self.player = Player(self.play_surface, self.play_area)
         self.hud.reset_game_over()
 
     def advance_to_next_room(self):
         """Passe à la salle suivante tout en conservant l'état du joueur."""
         self.all_projectiles.empty()
-        self.current_room = self.room_manager.next_room(self.play_surface, self.play_area)
+        self.current_room = self.room_manager.next_room(self.play_surface, self.play_area, self.reward_manager)
         # Recentrer le joueur sur la nouvelle salle
         self.player.rect.center = self.play_surface.get_rect().center
         self.player.sync_hitbox()
@@ -82,8 +87,10 @@ class Gameplay(Scene):
         door = self.current_room.selected_door
         if door is not None and not self.transitioning:
             self.transitioning = True
-            # self.player.add_upgrade(door.reward_id)
+            self.player.add_upgrade(door.reward_id, self.reward_manager.data[door.reward_id])
             self.advance_to_next_room()
+            print(self.player.upgrades)
+            print(self.player.upgrades_data)
 
     def handle_events(self, event: pygame.event.Event):
         super().handle_events(event)

@@ -10,10 +10,11 @@ from entities.interactables.door import Door
 class Room:
     """Représente une salle de donjon avec son décor, ses obstacles et ses ennemis."""
 
-    def __init__(self, room_data: dict, play_surface: pygame.Surface, play_area: pygame.Rect):
+    def __init__(self, room_data: dict, play_surface: pygame.Surface, play_area: pygame.Rect, reward_manager):
         self.room_id = room_data.get("id", 0)
         self.play_surface = play_surface
         self.play_area = play_area
+        self.reward_manager = reward_manager
 
         self.enemies = pygame.sprite.Group()
         self.enemy_projectiles = pygame.sprite.Group()
@@ -60,6 +61,7 @@ class Room:
                 size=(width, height),
                 centerx=self.background.get_width() * x_rel,
                 bottom=self.play_area.top,
+                reward=self.reward_manager.get_random_reward()
             )
             for x_rel in (0.23, 0.5, 0.77)
         ]
