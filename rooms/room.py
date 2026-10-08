@@ -4,6 +4,7 @@ from core.asset_manager import AssetManager
 from core.constants import COLOR_GRID, COLOR_HITBOX_DEBUG
 from entities.enemies import create_enemy
 from entities.obstacles import create_obstacle
+from entities.interactables.door import Door
 
 
 class Room:
@@ -23,6 +24,9 @@ class Room:
             "assets/rooms/default.png",
             scale=(self.play_surface.get_width(), self.play_surface.get_height())
         )
+
+        # Portes des améliorations
+        self.doors: list[Door] =  self._create_doors()
 
         # Grille dynamique calculée selon le layout JSON
         layout = room_data.get("layout", [])
@@ -44,6 +48,20 @@ class Room:
         center_x = self.grid_x + (col + 0.5) * self.tile_size
         center_y = self.grid_y + (row + 0.5) * self.tile_size
         return center_x, center_y
+
+    def _create_doors(self) -> list[Door]:
+        """Crée et positionne les trois portes."""
+        height = max(1, self.play_area.top)
+        width = round(height * 1)
+
+        return [
+            Door(
+                size=(width, height),
+                centerx=self.background.get_width() * x_rel,
+                bottom=self.play_area.top,
+            )
+            for x_rel in (0.23, 0.5, 0.77)
+        ]
 
     def _spawn_obstacles(self, layout: list[str]):
         """Génère tous les obstacles en fonction des symboles du layout (P, W, C, S)."""
@@ -96,6 +114,9 @@ class Room:
         for enemy in self.enemies:
             enemy.update(dt, player=player, play_area=self.play_area, projectile_group=self.enemy_projectiles)
 
+        for door in self.doors:
+            door.update(dt, player.hitbox, self.is_cleared())
+
         self.enemy_projectiles.update(dt)
 
     def draw_grid_debug(self, surface: pygame.Surface):
@@ -108,9 +129,15 @@ class Room:
             y = self.grid_y + row * self.tile_size
             pygame.draw.line(surface, COLOR_GRID, (self.grid_x, y), (self.grid_x + self.grid_width, y), 1)
 
+    def _draw_doors(self, surface: pygame.Surface, debug: bool) -> None:
+        """Dessine les portes"""
+        for door in self.doors:
+            door.draw(surface, debug=debug)
+
     def draw(self, surface: pygame.Surface, debug: bool = False):
         """Affiche le décor, les obstacles, les ennemis et les éléments de débug si activés."""
         surface.blit(self.background, (0, 0))
+        self._draw_doors(surface, debug)
 
         # Obstacles
         for obstacle in self.obstacles:
