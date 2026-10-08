@@ -4,7 +4,7 @@ from core.asset_manager import AssetManager
 from entities.projectiles.projectile import Projectile
 
 
-class Base(Projectile):
+class Ice(Projectile):
     """Projectile de base du joueur tiré en ligne droite avec rotation selon l'angle."""
 
     def __init__(
@@ -20,7 +20,7 @@ class Base(Projectile):
         angle = -math.degrees(math.atan2(dir_vec.y, dir_vec.x)) if dir_vec.length_squared() > 0 else 0
 
         # Récupération et transformation de l'image via l'AssetManager
-        image = AssetManager.get_image("assets/player_projectile/base.png", scale_by=0.07, rotate=angle)
+        image = AssetManager.get_image("assets/player_projectile/ice.png", scale_by=0.07, rotate=angle)
 
         super().__init__(
             play_surface=screen,

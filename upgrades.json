@@ -33,5 +33,47 @@
         "stat": "hp",
         "bonus": 0.2,
         "max_stacks": -1
+    },
+    "ice": {
+        "type": "attack",
+        "name": "Glace",
+        "attack_type": "Ice",
+        "description": "Les tirs ralentissent les ennemis touchés.",
+        "max_stacks": 1
+    },
+    "fire": {
+        "type": "attack",
+        "name": "Feu",
+        "attack_type": "Fire",
+        "description": "Les tirs appliquent une brûlure qui inflige des dégâts sur la durée.",
+        "max_stacks": 1
+    },
+    "air": {
+        "type": "attack",
+        "name": "Air",
+        "attack_type": "Air",
+        "description": "Les projectiles sont plus rapides et traversent un ennemi.",
+        "max_stacks": 1
+    },
+    "lightning": {
+        "type": "attack",
+        "name": "Foudre",
+        "attack_type": "Lightning",
+        "description": "Les impacts déclenchent un éclair vers un ennemi proche.",
+        "max_stacks": 1
+    },
+    "blood": {
+        "type": "attack",
+        "name": "Sang",
+        "attack_type": "Blood",
+        "description": "Les tirs rendent un peu de vie, avec un plafond de soin par seconde.",
+        "max_stacks": 1
+    },
+    "radiation": {
+        "type": "attack",
+        "name": "Radiation",
+        "attack_type": "Radiation",
+        "description": "Réduit les dégâts directs, mais ajoute une explosion à l'impact.",
+        "max_stacks": 1
     }
 }

@@ -12,7 +12,7 @@ from core.constants import (
     PLAYER_PROJECTILE_DAMAGE,
     PLAYER_PROJECTILE_SPEED,
 )
-from entities.projectiles.player_projectiles.base import Base
+from entities.projectiles.player_projectiles import ATTACK_TYPE_CLASS
 from systems.collision_system import CollisionSystem
 
 
@@ -52,7 +52,7 @@ class Player(pygame.sprite.Sprite):
         self.shoot_timer = 0.0
         self.dead = False
 
-        self.attack_type = Base
+        self.attack_type = ATTACK_TYPE_CLASS["Base"]
 
         self.upgrades: dict[str, int] = {}
         self.upgrades_data = {}
@@ -239,6 +239,11 @@ class Player(pygame.sprite.Sprite):
             self.sprite_direction = "down" if move_dir.y > 0 else "up"
 
 
+    def _change_attack_type(self, upgrade_id) -> None:
+        attack_type: str = self.upgrades_data[upgrade_id]["attack_type"]
+        self.attack_type = ATTACK_TYPE_CLASS[attack_type]
+
+
     def _recalculate_stats(self) -> None:
         """Recalcule les stats depuis les valeurs de base."""
         self.speed = self.base_speed
@@ -278,8 +283,8 @@ class Player(pygame.sprite.Sprite):
             self._recalculate_stats()
         elif upgrade_type == "consumable":
             self._handle_consumable(upgrade_id)
-        elif upgrade_type == "attack_type":
-            pass
+        elif upgrade_type == "attack":
+            self._change_attack_type(upgrade_id)
         elif upgrade_type == "spell":
             pass
 
