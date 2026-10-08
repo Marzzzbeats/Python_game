@@ -148,9 +148,9 @@ class Player(pygame.sprite.Sprite):
 
         self.sync_hitbox()
 
-    def take_damage(self, amount: int):
+    def take_damage(self, amount: int, debug: bool):
         """Inflige des dégâts avec délai d'invulnérabilité."""
-        if self.dead or self.invulnerable_timer > 0:
+        if debug or self.invulnerable_timer > 0:
             return
 
         self.hp -= amount
@@ -178,7 +178,6 @@ class Player(pygame.sprite.Sprite):
             damage=self.damage
         )
 
-        print(self.damage)
         target_group.add(projectile)
         self.player_projectiles.add(projectile)
 

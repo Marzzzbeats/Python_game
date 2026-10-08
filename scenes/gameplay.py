@@ -90,7 +90,7 @@ class Gameplay(Scene):
 
         if event.type == pygame.KEYDOWN:
             # Touche F3 : bascule du mode débug
-            if event.key == pygame.K_F3:
+            if event.key == pygame.K_F3 or event.key == pygame.K_3:
                 if DEBUG_MODE:
                     DEBUG_MODE.pop()
                 else:
@@ -115,6 +115,9 @@ class Gameplay(Scene):
 
         # Mise à jour de la salle et des ennemis
         self.current_room.update(dt, self.player, self.all_projectiles)
+
+        # Vérifie le choix de l'amélioration et du passage a la room suivante
+        self.check_transition()
 
         # Mise à jour des projectiles
         self.all_projectiles.update(dt)
