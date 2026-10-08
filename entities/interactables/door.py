@@ -1,5 +1,5 @@
 import pygame
-from core.constants import COLOR_HITBOX_DEBUG
+from core.constants import COLOR_HITBOX_DEBUG, SECONDARY_COLOR_HITBOX_DEBUG
 from core.asset_manager import AssetManager
 
 class Door:
@@ -31,11 +31,17 @@ class Door:
         self.trigger_rect = pygame.Rect(0, 0, self.rect.width, 50)
         self.trigger_rect.midtop = self.rect.midbottom
 
+        # Zone au seuil pour avoir l'amélioration
+        self.entry_rect = pygame.Rect(
+            0, 0, round(self.rect.width * 0.7), 10
+        )
+        self.entry_rect.midtop = self.rect.midbottom
+
     def can_enter(self, player_rect: pygame.Rect) -> bool:
-        """Indique si le joueur peut entrer dans la porte."""
+        """Indique si le joueur entre dans la porte ouverte."""
         return (
             self.is_open
-            and self.trigger_rect.colliderect(player_rect)
+            and self.entry_rect.colliderect(player_rect)
         )
 
     def update(self, dt: float, player_rect: pygame.Rect, enabled: bool) -> None:
@@ -71,4 +77,7 @@ class Door:
         if debug:
             pygame.draw.rect(
                 surface, COLOR_HITBOX_DEBUG, self.trigger_rect, 1
+            )
+            pygame.draw.rect(
+                surface, SECONDARY_COLOR_HITBOX_DEBUG, self.entry_rect, 1
             )

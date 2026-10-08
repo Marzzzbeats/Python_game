@@ -54,6 +54,7 @@ class Gameplay(Scene):
             play_surface=self.play_surface,
             play_area=self.play_area
         )
+        self.transitioning = False
 
         # Joueur
         self.player = Player(self.play_surface, self.play_area)
@@ -75,6 +76,14 @@ class Gameplay(Scene):
         # Recentrer le joueur sur la nouvelle salle
         self.player.rect.center = self.play_surface.get_rect().center
         self.player.sync_hitbox()
+        self.transitioning = False
+
+    def check_transition(self) -> None:
+        door = self.current_room.selected_door
+        if door is not None and not self.transitioning:
+            self.transitioning = True
+            # self.player.add_upgrade(door.reward_id)
+            self.advance_to_next_room()
 
     def handle_events(self, event: pygame.event.Event):
         super().handle_events(event)

@@ -27,6 +27,7 @@ class Room:
 
         # Portes des améliorations
         self.doors: list[Door] =  self._create_doors()
+        self.selected_door: Door | None = None
 
         # Grille dynamique calculée selon le layout JSON
         layout = room_data.get("layout", [])
@@ -109,6 +110,13 @@ class Room:
         """Indique si tous les ennemis de la salle ont été éliminés."""
         return len(self.enemies) == 0
 
+    def choose_door(self, player) -> None:
+        if self.is_cleared() and self.selected_door is None:
+            for door in self.doors:
+                if door.can_enter(player.hitbox):
+                    self.selected_door = door
+                    break
+
     def update(self, dt: float, player, global_projectiles: pygame.sprite.Group):
         """Met à jour l'ensemble des ennemis et projectiles ennemis."""
         for enemy in self.enemies:
@@ -116,6 +124,7 @@ class Room:
 
         for door in self.doors:
             door.update(dt, player.hitbox, self.is_cleared())
+        self.choose_door(player)
 
         self.enemy_projectiles.update(dt)
 
