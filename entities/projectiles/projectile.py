@@ -63,5 +63,5 @@ class Projectile(pygame.sprite.Sprite):
         self.move(dt)
 
         # Si le projectile quitte la zone de jeu
-        if not self.hitbox.colliderect(self.area):
+        if not self.area.contains(self.rect):
             self.kill()
