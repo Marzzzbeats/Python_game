@@ -178,7 +178,7 @@ class Player(pygame.sprite.Sprite):
         self.cast_timer = self.cast_duration
 
         projectile = self.attack_type(
-            screen=self.play_surface,
+            area=self.play_area,
             pos=self.rect.center,
             direction=self.look_direction,
             owner="player",

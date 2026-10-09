@@ -6,7 +6,7 @@ class Projectile(pygame.sprite.Sprite):
 
     def __init__(
         self,
-        play_surface: pygame.Surface,
+        play_area: pygame.Rect,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
         speed: float,
@@ -18,7 +18,7 @@ class Projectile(pygame.sprite.Sprite):
     ):
         super().__init__()
 
-        self.screen = play_surface  #Change nous ça baptiste
+        self.area = play_area
         self.pos = pygame.Vector2(pos)
 
         dir_vec = pygame.Vector2(direction)
@@ -63,5 +63,5 @@ class Projectile(pygame.sprite.Sprite):
         self.move(dt)
 
         # Si le projectile quitte la zone de jeu
-        if not self.rect.colliderect(self.screen.get_rect()):
+        if not self.hitbox.colliderect(self.area):
             self.kill()

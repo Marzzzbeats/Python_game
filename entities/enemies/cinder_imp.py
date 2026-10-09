@@ -32,11 +32,11 @@ class CinderImp(Enemy):
         # Comportement de distance
         self.preferred_distance = 320.0
 
-    def shoot(self, target_pos: tuple[float, float] | pygame.Vector2, screen: pygame.Surface, projectile_group: pygame.sprite.Group):
+    def shoot(self, target_pos: tuple[float, float] | pygame.Vector2, area: pygame.Rect, projectile_group: pygame.sprite.Group):
         """Crée et projette une boule de feu vers la cible."""
         direction = self.get_direction_to(target_pos)
         projectile = BallProjectile(
-            screen=screen,
+            area=area,
             pos=self.rect.center,
             direction=direction,
             owner="enemy",
@@ -66,5 +66,5 @@ class CinderImp(Enemy):
         self.shoot_timer -= dt
         if self.shoot_timer <= 0:
             if projectile_group is not None and hasattr(player, "play_surface"):
-                self.shoot(player.rect.center, player.play_surface, projectile_group)
+                self.shoot(player.rect.center, play_area, projectile_group)
             self.shoot_timer = self.shoot_cooldown

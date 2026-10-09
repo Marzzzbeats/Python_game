@@ -9,7 +9,7 @@ class Base(Projectile):
 
     def __init__(
         self,
-        screen: pygame.Surface,
+        area: pygame.Rect,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
         owner: str,
@@ -23,7 +23,7 @@ class Base(Projectile):
         image = AssetManager.get_image("assets/player_projectile/base.png", scale_by=0.07, rotate=angle)
 
         super().__init__(
-            play_surface=screen,
+            play_area=area,
             pos=pos,
             direction=dir_vec,
             speed=speed,
