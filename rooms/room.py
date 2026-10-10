@@ -22,7 +22,7 @@ class Room:
 
         # Fond de salle
         self.background = AssetManager.get_image(
-            "assets/rooms/default.png",
+            "assets/rooms/default_tileless.png",
             scale=(self.play_surface.get_width(), self.play_surface.get_height())
         )
 
@@ -42,7 +42,7 @@ class Room:
         self.grid_y = self.play_area.y + (self.play_area.height - self.grid_height) / 2
 
         # Construction du décor et des ennemis
-        self._spawn_obstacles(layout)
+        self._spawn_obstacles(layout, self.tile_size)
         self._spawn_enemies(room_data.get("enemies", []), layout)
 
     def grid_to_world(self, col: int, row: int) -> tuple[float, float]:
@@ -67,12 +67,12 @@ class Room:
             for i,x_rel in enumerate([0.23, 0.5, 0.77])
         ]
 
-    def _spawn_obstacles(self, layout: list[str]):
+    def _spawn_obstacles(self, layout: list[str], tile_size: int):
         """Génère tous les obstacles en fonction des symboles du layout (P, W, C, S)."""
         for r, row in enumerate(layout):
             for c, tile in enumerate(row):
                 if tile != ".":
-                    obstacle = create_obstacle(tile, c, r, self.play_surface)
+                    obstacle = create_obstacle(tile, c, r, self.play_surface, layout, tile_size)
                     if obstacle is not None:
                         center_pos = self.grid_to_world(c, r)
                         obstacle.set_position(center_pos)

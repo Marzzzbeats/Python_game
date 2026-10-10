@@ -48,5 +48,35 @@ OBSTACLE_SYMBOLS = {
     "B": "Container",  # Baril/Container fallback
 }
 
+WALL_TEXTURES = {
+    # Segments droits
+    (False, True,  False, True):  "wall_00.png",
+    (True,  False, True,  False): "wall_01.png",
+
+    # Coins
+    (False, True,  True,  False): "wall_02.png",
+    (False, False, True,  True):  "wall_03.png",
+    (True,  True,  False, False): "wall_04.png",
+    (True,  False, False, True):  "wall_05.png",
+
+    # Extrémités
+    (False, True,  False, False): "wall_06.png",
+    (False, False, False, True):  "wall_07.png",
+    (True,  False, False, False): "wall_08.png",
+    (False, False, True,  False): "wall_09.png",
+
+    # Jonctions en T
+    (True,  True,  False, True):  "wall_10.png",
+    (False, True,  True,  True):  "wall_11.png",
+    (True,  True,  True,  False): "wall_12.png",
+    (True,  False, True,  True):  "wall_13.png",
+
+    # Croisement
+    (True,  True,  True,  True):  "wall_14.png",
+
+    # Plein
+    "fill" : "wall_15.png"
+}
+
 # --- Débug ---
 DEBUG_MODE = []
