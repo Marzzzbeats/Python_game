@@ -77,6 +77,7 @@ class Gameplay(Scene):
 
     def advance_to_next_room(self):
         """Passe à la salle suivante tout en conservant l'état du joueur."""
+        self.player.player_projectiles.empty()
         self.all_projectiles.empty()
         self.current_room = self.room_manager.next_room(self.play_surface, self.play_area, self.reward_manager, self.player.upgrades)
         # Recentrer le joueur sur la nouvelle salle
