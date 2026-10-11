@@ -15,7 +15,8 @@ class Projectile(pygame.sprite.Sprite):
         owner: str,
         lifetime: float = 5.0,
         remaining_pierces: int = 0,
-        hitbox_scale: float = 1.0
+        hitbox_scale: float = 1.0,
+        source_player: pygame.sprite.Sprite | None = None
     ):
         super().__init__()
 
@@ -43,6 +44,7 @@ class Projectile(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.owner = owner
+        self.source_player = source_player
 
     def scale_hitbox(self, scale_ratio: float = 1.0):
         """Redimensionne la hitbox relative à l'image."""

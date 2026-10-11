@@ -169,6 +169,12 @@ class Player(pygame.sprite.Sprite):
             self.dead = True
             self.state = "death"
 
+    def life_steal(self, amount: float) -> None:
+        """Restaure une proportion des PV maximum."""
+        if self.dead:
+            return
+        self.hp = round(min(self.max_hp, self.hp + self.max_hp * amount))
+
     def shoot(self, target_group: pygame.sprite.Group):
         """Crée un projectile dirigé selon l'orientation du joueur."""
         if self.dead:
@@ -183,7 +189,8 @@ class Player(pygame.sprite.Sprite):
             direction=self.look_direction,
             owner="player",
             speed=PLAYER_BASE_PROJECTILE_SPEED,
-            damage=100000000 if DEBUG_MODE else self.damage
+            damage=100000000 if DEBUG_MODE else self.damage,
+            source_player=self
         )
 
         target_group.add(projectile)
