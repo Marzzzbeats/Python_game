@@ -128,7 +128,8 @@ class Gameplay(Scene):
         # Détection et résolution des collisions via le CollisionSystem
         CollisionSystem.handle_player_projectiles_vs_enemies(
             self.player.player_projectiles,
-            self.current_room.enemies
+            self.current_room.enemies,
+            effects=self.current_room.effects
         )
         CollisionSystem.handle_enemy_projectiles_vs_player(
             self.current_room.enemy_projectiles,

@@ -35,7 +35,7 @@ class Blood(Projectile):
             source_player=source_player
         )
 
-    def on_hit(self, enemy) -> None:
+    def on_hit(self, enemy, enemies: pygame.sprite.Group, effects: pygame.sprite.Group) -> None:
         """Soigne le joueur lors d'un impact."""
         if self.source_player is not None:
             self.source_player.life_steal(amount=0.1)

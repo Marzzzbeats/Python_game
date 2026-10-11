@@ -36,6 +36,6 @@ class Fire(Projectile):
         )
 
 
-    def on_hit(self, enemy) -> None:
+    def on_hit(self, enemy, enemies: pygame.sprite.Group, effects: pygame.sprite.Group) -> None:
         """Applique une brulure à l'ennemi touché."""
         enemy.apply_burn(duration=3.0)

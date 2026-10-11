@@ -35,6 +35,6 @@ class Ice(Projectile):
             source_player=source_player
         )
 
-    def on_hit(self, enemy) -> None:
+    def on_hit(self, enemy, enemies: pygame.sprite.Group, effects: pygame.sprite.Group) -> None:
         """Ralentit l'ennemi touché."""
         enemy.apply_slow(duration=2.0, multiplier=0.6)

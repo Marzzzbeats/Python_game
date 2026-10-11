@@ -19,6 +19,7 @@ class Room:
         self.enemies = pygame.sprite.Group()
         self.enemy_projectiles = pygame.sprite.Group()
         self.obstacles = pygame.sprite.Group()
+        self.effects = pygame.sprite.Group()
 
         # Fond de salle
         self.background = AssetManager.get_image(
@@ -131,6 +132,7 @@ class Room:
         self.choose_door(player)
 
         self.enemy_projectiles.update(dt)
+        self.effects.update(dt)
 
     def draw_grid_debug(self, surface: pygame.Surface):
         """Dessine la grille d'alignement pour le débug."""
@@ -163,6 +165,9 @@ class Room:
             enemy.draw(surface)
             if debug:
                 pygame.draw.rect(surface, COLOR_HITBOX_DEBUG, enemy.hitbox, 1)
+
+        # Effects
+        self.effects.draw(surface)
 
         # Grille de débug
         if debug:

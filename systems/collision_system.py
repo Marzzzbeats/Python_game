@@ -24,7 +24,7 @@ class CollisionSystem:
     """Système dédié à la détection et résolution de toutes les collisions du jeu."""
 
     @staticmethod
-    def handle_player_projectiles_vs_enemies(player_projectiles: pygame.sprite.Group, enemies: pygame.sprite.Group):
+    def handle_player_projectiles_vs_enemies(player_projectiles: pygame.sprite.Group, enemies: pygame.sprite.Group, effects: pygame.sprite.Group):
         """Gère l'impact des projectiles du joueur contre les ennemis."""
         hits = pygame.sprite.groupcollide(
             player_projectiles,
@@ -41,7 +41,7 @@ class CollisionSystem:
 
                 projectile.hit_enemies.add(enemy)
                 enemy.take_damage(getattr(projectile, "damage", 1))
-                projectile.on_hit(enemy)
+                projectile.on_hit(enemy, enemies, effects)
 
                 if projectile.remaining_pierces > 0:
                     projectile.remaining_pierces -= 1
