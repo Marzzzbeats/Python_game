@@ -41,6 +41,7 @@ class CollisionSystem:
 
                 projectile.hit_enemies.add(enemy)
                 enemy.take_damage(getattr(projectile, "damage", 1))
+                projectile.on_hit(enemy)
 
                 if projectile.remaining_pierces > 0:
                     projectile.remaining_pierces -= 1

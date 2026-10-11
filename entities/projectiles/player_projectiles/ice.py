@@ -32,3 +32,7 @@ class Ice(Projectile):
             owner=owner,
             hitbox_scale=0.4
         )
+
+    def on_hit(self, enemy) -> None:
+        """Ralentit l'ennemi touché."""
+        enemy.apply_slow(duration=2.0, multiplier=0.6)

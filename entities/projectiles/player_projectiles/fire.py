@@ -32,3 +32,8 @@ class Fire(Projectile):
             owner=owner,
             hitbox_scale=0.4
         )
+
+
+    def on_hit(self, enemy) -> None:
+        """Applique une brulure à l'ennemi touché."""
+        enemy.apply_burn(duration=3.0)

@@ -50,6 +50,9 @@ class Projectile(pygame.sprite.Sprite):
             self.hitbox.scale_by_ip(scale_ratio)
             self.hitbox.center = self.rect.center
 
+    def on_hit(self, enemy) -> None:
+        """Applique les effets du projectile à l'impact."""
+        pass
 
     def _reset_hit_enemies(self):
         """Reset les enemies touchés"""

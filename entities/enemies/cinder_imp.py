@@ -56,12 +56,13 @@ class CinderImp(Enemy):
         dist = self.distance_to(player.rect.center)
         direction = self.get_direction_to(player.rect.center)
 
+        move_speed = self.speed * self.slow_multiplier
         if dist < self.preferred_distance - 60:
             # S'éloigne du joueur
-            self.update_position(-direction * self.speed * dt, play_area)
+            self.update_position(-direction * move_speed * dt, play_area)
         elif dist > self.preferred_distance + 60:
             # Se rapproche prudemment
-            self.update_position(direction * (self.speed * 0.8) * dt, play_area)
+            self.update_position(direction * (move_speed * 0.8) * dt, play_area)
 
         # Rechargement et tir
         self.shoot_timer -= dt
