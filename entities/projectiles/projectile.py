@@ -14,6 +14,7 @@ class Projectile(pygame.sprite.Sprite):
         image: pygame.Surface,
         owner: str,
         lifetime: float = 5.0,
+        remaining_pierces: int = 0,
         hitbox_scale: float = 1.0
     ):
         super().__init__()
@@ -31,6 +32,8 @@ class Projectile(pygame.sprite.Sprite):
         self.damage = damage
         self.lifetime = lifetime
         self.elapsed_time = 0.0
+        self.remaining_pierces = remaining_pierces
+        self.hit_enemies = set()
 
         self.image = image
         self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
@@ -47,6 +50,11 @@ class Projectile(pygame.sprite.Sprite):
             self.hitbox.scale_by_ip(scale_ratio)
             self.hitbox.center = self.rect.center
 
+
+    def _reset_hit_enemies(self):
+        """Reset les enemies touchés"""
+        self.hit_enemies = set()
+
     def move(self, dt: float):
         """Met à jour la position et synchronise rect et hitbox."""
         self.pos += self.direction * self.speed * dt
@@ -58,6 +66,7 @@ class Projectile(pygame.sprite.Sprite):
         self.elapsed_time += dt
         if self.elapsed_time >= self.lifetime:
             self.kill()
+            self._reset_hit_enemies()
             return
 
         self.move(dt)
@@ -65,3 +74,4 @@ class Projectile(pygame.sprite.Sprite):
         # Si le projectile quitte la zone de jeu
         if not self.area.contains(self.rect):
             self.kill()
+            self._reset_hit_enemies()

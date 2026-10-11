@@ -9,10 +9,10 @@ class Enemy(pygame.sprite.Sprite):
         self,
         pos: tuple[float, float] | pygame.Vector2,
         image: pygame.Surface,
-        speed: float = 100.0,
-        damage: int = 1,
-        max_hp: int = 5,
-        contact_damage: int = 1,
+        speed: float,
+        damage: int,
+        max_hp: int,
+        contact_damage: int,
         hitbox_scale: float = 0.6
     ):
         super().__init__()

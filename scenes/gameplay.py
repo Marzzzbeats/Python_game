@@ -117,7 +117,7 @@ class Gameplay(Scene):
         self.player.update(dt, self.current_room.obstacles, self.all_projectiles)
 
         # Mise à jour de la salle et des ennemis
-        self.current_room.update(dt, self.player, self.all_projectiles)
+        self.current_room.update(dt, self.player, self.all_projectiles, DEBUG_MODE)
 
         # Vérifie le choix de l'amélioration et du passage a la room suivante
         self.check_transition()

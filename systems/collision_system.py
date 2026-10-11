@@ -29,14 +29,25 @@ class CollisionSystem:
         hits = pygame.sprite.groupcollide(
             player_projectiles,
             enemies,
-            dokilla=True,
+            dokilla=False,
             dokillb=False,
             collided=collide_hitbox
         )
 
         for projectile, enemies_hit in hits.items():
             for enemy in enemies_hit:
+                if enemy in projectile.hit_enemies:
+                    continue
+
+                projectile.hit_enemies.add(enemy)
                 enemy.take_damage(getattr(projectile, "damage", 1))
+
+                if projectile.remaining_pierces > 0:
+                    projectile.remaining_pierces -= 1
+                else:
+                    projectile.kill()
+                    projectile._reset_hit_enemies()
+                    break
 
     @staticmethod
     def handle_enemy_projectiles_vs_player(enemy_projectiles: pygame.sprite.Group, player):

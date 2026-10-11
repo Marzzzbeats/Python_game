@@ -120,10 +120,11 @@ class Room:
                     self.selected_door = door
                     break
 
-    def update(self, dt: float, player, global_projectiles: pygame.sprite.Group):
+    def update(self, dt: float, player, global_projectiles: pygame.sprite.Group, debug: bool):
         """Met à jour l'ensemble des ennemis et projectiles ennemis."""
-        for enemy in self.enemies:
-            enemy.update(dt, player=player, play_area=self.play_area, projectile_group=self.enemy_projectiles)
+        if not debug:
+            for enemy in self.enemies:
+                enemy.update(dt, player=player, play_area=self.play_area, projectile_group=self.enemy_projectiles)
 
         for door in self.doors:
             door.update(dt, player.hitbox, self.is_cleared())

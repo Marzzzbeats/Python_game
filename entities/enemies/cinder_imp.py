@@ -2,6 +2,7 @@ import pygame
 from core.asset_manager import AssetManager
 from entities.enemies.enemy import Enemy
 from entities.projectiles.enemy_projectile.ball import BallProjectile
+from core.constants import ENEMY_BASE_PROJECTILE_DAMAGE, ENEMY_BASE_PROJECTILE_SPEED, ENEMY_BASE_MAX_HP, ENEMY_BASE_SPEED
 
 
 class CinderImp(Enemy):
@@ -10,9 +11,9 @@ class CinderImp(Enemy):
     def __init__(
         self,
         pos: tuple[float, float] | pygame.Vector2,
-        speed: float = 120.0,
-        damage: int = 1,
-        max_hp: int = 4,
+        speed: float = ENEMY_BASE_SPEED,
+        damage: int = ENEMY_BASE_PROJECTILE_DAMAGE,
+        max_hp: int = ENEMY_BASE_MAX_HP,
     ):
         image = AssetManager.get_image("assets/enemies/cinder_imp.png", scale_by=0.6)
         super().__init__(
@@ -40,7 +41,7 @@ class CinderImp(Enemy):
             pos=self.rect.center,
             direction=direction,
             owner="enemy",
-            speed=400,
+            speed=ENEMY_BASE_PROJECTILE_SPEED,
             damage=self.damage
         )
         projectile_group.add(projectile)

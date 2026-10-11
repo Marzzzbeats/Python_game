@@ -6,11 +6,11 @@ from core.constants import (
     DEBUG_MODE,
     JOYSTICK_DEADZONE,
     PLAYER_BASE_SPEED,
-    PLAYER_FIRE_RATE,
-    PLAYER_HITBOX_SCALE,
-    PLAYER_MAX_HP,
-    PLAYER_PROJECTILE_DAMAGE,
-    PLAYER_PROJECTILE_SPEED,
+    PLAYER_BASE_FIRE_RATE,
+    PLAYER_BASE_HITBOX_SCALE,
+    PLAYER_BASE_MAX_HP,
+    PLAYER_BASE_PROJECTILE_DAMAGE,
+    PLAYER_BASE_PROJECTILE_SPEED,
 )
 from entities.projectiles.player_projectiles import ATTACK_TYPE_CLASS
 from systems.collision_system import CollisionSystem
@@ -40,19 +40,19 @@ class Player(pygame.sprite.Sprite):
         # Caractéristiques
         self.base_speed = PLAYER_BASE_SPEED
         self.speed = self.base_speed
-        self.base_max_hp = PLAYER_MAX_HP
+        self.base_max_hp = PLAYER_BASE_MAX_HP
         self.max_hp = self.base_max_hp
         self.hp = self.max_hp
-        self.base_damage = PLAYER_PROJECTILE_DAMAGE
+        self.base_damage = PLAYER_BASE_PROJECTILE_DAMAGE
         self.damage = self.base_damage
-        self.base_fire_rate = PLAYER_FIRE_RATE
+        self.base_fire_rate = PLAYER_BASE_FIRE_RATE
         self.fire_rate = self.base_fire_rate
         
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0.0
         self.dead = False
 
-        self.attack_type = ATTACK_TYPE_CLASS["Base"]
+        self.attack_type = ATTACK_TYPE_CLASS["Air"]
 
         self.upgrades: dict[str, int] = {}
         self.upgrades_data = {}
@@ -88,7 +88,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.play_surface.get_rect().center)
 
         self.hitbox = self.rect.copy()
-        self.hitbox.scale_by_ip(PLAYER_HITBOX_SCALE)
+        self.hitbox.scale_by_ip(PLAYER_BASE_HITBOX_SCALE)
         self.sync_hitbox()
 
     def sync_hitbox(self):
@@ -182,7 +182,7 @@ class Player(pygame.sprite.Sprite):
             pos=self.rect.center,
             direction=self.look_direction,
             owner="player",
-            speed=PLAYER_PROJECTILE_SPEED,
+            speed=PLAYER_BASE_PROJECTILE_SPEED,
             damage=100000000 if DEBUG_MODE else self.damage
         )
 

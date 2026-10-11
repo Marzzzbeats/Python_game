@@ -13,8 +13,8 @@ class Air(Projectile):
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
         owner: str,
-        speed: float = 550,
-        damage: int = 1
+        speed: float,
+        damage: int
     ):
         dir_vec = pygame.Vector2(direction)
         angle = -math.degrees(math.atan2(dir_vec.y, dir_vec.x)) if dir_vec.length_squared() > 0 else 0
@@ -26,9 +26,10 @@ class Air(Projectile):
             play_area=area,
             pos=pos,
             direction=dir_vec,
-            speed=speed,
+            speed=speed*1.2,
             damage=damage,
             image=image,
             owner=owner,
+            remaining_pierces=2,
             hitbox_scale=0.4
         )
