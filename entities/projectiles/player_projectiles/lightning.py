@@ -46,13 +46,13 @@ class Lightning(Projectile):
 
         for _ in range(self.chain_count):
             target = None
-            nearest_distance = self.chain_radius ** 2
+            nearest_distance = self.chain_radius
 
             for candidate in enemies:
                 if candidate.is_dead or candidate in self.hit_enemies:
                     continue
 
-                distance = origin.distance_squared_to(candidate.rect.center)
+                distance = origin.distance_to(candidate.rect.center)
 
                 if distance <= nearest_distance:
                     target = candidate
