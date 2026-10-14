@@ -39,7 +39,7 @@ class ExplosionEffect(pygame.sprite.Sprite):
             (*self.color, alpha),
             center,
             current_radius,
-            width=min(4, current_radius)
+            width=4
         )
 
         flash_strength = max(0.0, 1.0 - progress * 3)

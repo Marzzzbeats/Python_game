@@ -52,7 +52,7 @@ class Player(pygame.sprite.Sprite):
         self.shoot_timer = 0.0
         self.dead = False
 
-        self.attack_type = ATTACK_TYPE_CLASS["Radiation"]
+        self.attack_type = ATTACK_TYPE_CLASS["Lightning"]
 
         self.upgrades: dict[str, int] = {}
         self.upgrades_data = {}

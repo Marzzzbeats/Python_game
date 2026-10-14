@@ -52,7 +52,7 @@ class Projectile(pygame.sprite.Sprite):
             self.hitbox.scale_by_ip(scale_ratio)
             self.hitbox.center = self.rect.center
 
-    def on_hit(self, enemy, enemies: pygame.sprite.Group) -> None:
+    def on_hit(self, enemy, enemies: pygame.sprite.Group, effects: pygame.sprite.Group) -> None:
         """Applique les effets du projectile à l'impact."""
         pass
 

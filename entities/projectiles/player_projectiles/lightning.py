@@ -2,14 +2,15 @@ import math
 import pygame
 from core.asset_manager import AssetManager
 from entities.projectiles.projectile import Projectile
+from effects.lightning import LightningEffect
 
 
 class Lightning(Projectile):
-    """Projectile de base du joueur tiré en ligne droite avec rotation selon l'angle."""
+    """Projectile qui déclenche un éclair vers un ennemi proche à l'impact."""
 
     def __init__(
         self,
-        screen: pygame.Surface,
+        area: pygame.Rect,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
         owner: str,
@@ -24,7 +25,7 @@ class Lightning(Projectile):
         image = AssetManager.get_image("assets/player_projectile/lightning.png", scale_by=0.07, rotate=angle)
 
         super().__init__(
-            play_surface=screen,
+            play_area=area,
             pos=pos,
             direction=dir_vec,
             speed=speed,
@@ -34,3 +35,34 @@ class Lightning(Projectile):
             hitbox_scale=0.4,
             source_player=source_player
         )
+
+        self.chain_count = 3
+        self.chain_radius = 200
+        self.chain_damage = damage * 0.5
+
+    def on_hit(self, enemy, enemies, effects) -> None:
+        origin = pygame.Vector2(enemy.rect.center)
+        self.hit_enemies.add(enemy)
+
+        for _ in range(self.chain_count):
+            target = None
+            nearest_distance = self.chain_radius ** 2
+
+            for candidate in enemies:
+                if candidate.is_dead or candidate in self.hit_enemies:
+                    continue
+
+                distance = origin.distance_squared_to(candidate.rect.center)
+
+                if distance <= nearest_distance:
+                    target = candidate
+                    nearest_distance = distance
+
+            if target is None:
+                break
+
+            self.hit_enemies.add(target)
+            effects.add(LightningEffect(origin, target.rect.center))
+            target.take_damage(self.chain_damage)
+
+            origin = pygame.Vector2(target.rect.center)
