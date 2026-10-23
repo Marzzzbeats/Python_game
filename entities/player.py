@@ -1,4 +1,5 @@
 import pygame
+from math import floor
 from core.asset_manager import AssetManager
 from core.constants import (
     COLOR_HITBOX_DEBUG,
@@ -167,7 +168,7 @@ class Player(pygame.sprite.Sprite):
         if debug or self.invulnerable_timer > 0:
             return
 
-        self.hp -= round(amount * (1 - self.shield))
+        self.hp -= floor(amount * (1 - self.shield))
         self.invulnerable_timer = self.invulnerable_duration
 
         if self.hp <= 0:
@@ -179,7 +180,7 @@ class Player(pygame.sprite.Sprite):
         """Restaure une proportion des PV maximum."""
         if self.dead:
             return
-        self.hp = round(min(self.max_hp, self.hp + self.max_hp * amount))
+        self.hp = round(min(self.max_hp, self.hp + self.damage * amount))
 
     def shoot(self, target_group: pygame.sprite.Group):
         """Crée un projectile dirigé selon l'orientation du joueur."""

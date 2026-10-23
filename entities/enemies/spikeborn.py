@@ -1,6 +1,7 @@
 import pygame
 from core.asset_manager import AssetManager
 from entities.enemies.enemy import Enemy
+from core.constants import ENEMY_BASE_PROJECTILE_DAMAGE, ENEMY_BASE_PROJECTILE_SPEED, ENEMY_BASE_MAX_HP, ENEMY_BASE_SPEED, ENEMY_BASE_CONTACT_DAMAGE
 
 
 class Spikeborn(Enemy):
@@ -9,9 +10,9 @@ class Spikeborn(Enemy):
     def __init__(
         self,
         pos: tuple[float, float] | pygame.Vector2,
-        speed: float = 85.0,
-        damage: int = 2,
-        max_hp: int = 12
+        speed: float = ENEMY_BASE_SPEED*0.9,
+        damage: int = ENEMY_BASE_PROJECTILE_DAMAGE*1.2,
+        max_hp: int = ENEMY_BASE_MAX_HP*1.2,
     ):
         image = AssetManager.get_image("assets/enemies/spikeborn.png", scale_by=0.65)
         super().__init__(

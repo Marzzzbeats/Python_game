@@ -7,7 +7,7 @@
                     "enemies": [
                         {
                             "class": "CinderImp",
-                            "count": 3
+                            "count": 2
                         }
                     ],
                     "layout": [

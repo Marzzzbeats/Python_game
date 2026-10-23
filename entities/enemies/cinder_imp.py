@@ -2,7 +2,7 @@ import pygame
 from core.asset_manager import AssetManager
 from entities.enemies.enemy import Enemy
 from entities.projectiles.enemy_projectile.ball import BallProjectile
-from core.constants import ENEMY_BASE_PROJECTILE_DAMAGE, ENEMY_BASE_PROJECTILE_SPEED, ENEMY_BASE_MAX_HP, ENEMY_BASE_SPEED
+from core.constants import ENEMY_BASE_PROJECTILE_DAMAGE, ENEMY_BASE_PROJECTILE_SPEED, ENEMY_BASE_MAX_HP, ENEMY_BASE_SPEED, ENEMY_BASE_CONTACT_DAMAGE
 
 
 class CinderImp(Enemy):
@@ -22,11 +22,11 @@ class CinderImp(Enemy):
             speed=speed,
             damage=damage,
             max_hp=max_hp,
-            contact_damage=1,
+            contact_damage=ENEMY_BASE_CONTACT_DAMAGE,
             hitbox_scale=0.6
         )
 
-        self.fire_rate = 0.8  # tirs par seconde
+        self.fire_rate = 0.5  # tirs par seconde
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = self.shoot_cooldown * 0.5  # premier tir décalé
 

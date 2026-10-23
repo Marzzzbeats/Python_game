@@ -83,8 +83,8 @@ class Room:
         """Place les ennemis sur des cases libres de la grille."""
         # Liste des cases libres (sans obstacles)
         free_tiles = []
-        for r in range(self.rows):
-            for c in range(self.columns):
+        for r in range(1 ,self.rows-1):
+            for c in range(1, self.columns-1):
                 # Évite les cases trop proches du centre (zone d'apparition du joueur), faudra surement adapter
                 is_near_center = (abs(c - self.columns // 2) <= 1 and abs(r - self.rows // 2) <= 1)
                 tile_char = layout[r][c] if r < len(layout) and c < len(layout[r]) else "."
