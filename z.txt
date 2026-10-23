@@ -1,0 +1,40 @@
+UPGRADES PASSIFS — ÉLÉMENT DU TIR
+--------------------------------
+Attaque de base : projectile d'énergie. Un seul élément actif à la fois.
+
+- Feu : les tirs appliquent une brûlure qui inflige des dégâts sur la durée.
+- Air : accélère les projectiles et leur permet de traverser un ennemi.
+- Foudre : les impacts déclenchent un éclair vers un ennemi proche.
+- Sang : les tirs rendent un peu de vie, avec un plafond de soin par seconde.
+- Radiation : réduit les dégâts directs, mais ajoute une explosion à l'impact.
+- Glace : les tirs ralentissent les ennemis touchés.
+
+UPGRADES PASSIFS — FORME ET PUISSANCE DU TIR
+------------------------------------------
+- Cadence : augmente la fréquence des tirs.
+- Puissance : augmente les dégâts des tirs.
+- Tir multiple : ajoute des projectiles en éventail.
+- Rafale : tire plusieurs projectiles successifs, puis marque une courte pause.
+- Rebond mural : les projectiles rebondissent une fois sur un mur.
+- Perforation : les projectiles traversent un ennemi supplémentaire.
+- Gros projectile : augmente la taille et les dégâts, mais réduit la cadence.
+- Tir arrière : ajoute un projectile dans la direction opposée au tir.
+- Projectile éclaté : à l'impact, crée deux petits tirs qui ne se divisent plus.
+
+UPGRADES PASSIFS — JOUEUR ET FAMILIERS
+------------------------------------
+- PV maximum : augmente les PV max et soigne du montant ajouté.
+- Défense : réduit les dégâts subis, avec une limite de réduction.
+- Épines : renvoie des dégâts à l'ennemi qui te touche.
+- Puppets : ajoute un familier qui suit le joueur et tire automatiquement.
+- Puppets — puissance : augmente les dégâts des familiers.
+- Puppets — cadence : augmente la fréquence de tir des familiers.
+- Pacte dangereux : augmente les dégâts du joueur et des ennemis.
+- Projectiles de soin : transforme certains tirs ennemis en orbes de soin distincts.
+- Soin amélioré : augmente la vie rendue par les orbes de soin.
+- Recharge magique : réduit le temps de recharge des sorts.
+- Second souffle : permet de survivre une fois par run à un coup fatal.
+
+RÉCOMPENSE IMMÉDIATE
+-------------------
+- Soin instantané : restaure un pourcentage des PV maximum.

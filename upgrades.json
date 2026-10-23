@@ -27,6 +27,13 @@
         "bonus": 0.5,
         "max_stacks": 1
     },
+    "bigger_proj": {
+        "type": "stat",
+        "nae": "Gros projectiles",
+        "stat": "proj_size",
+        "bonus": 0.2,
+        "max_stacks": 1
+    },
     "heal": {
         "type" : "consumable",
         "name": "Soin instantané",

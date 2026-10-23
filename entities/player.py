@@ -11,6 +11,7 @@ from core.constants import (
     PLAYER_BASE_MAX_HP,
     PLAYER_BASE_PROJECTILE_DAMAGE,
     PLAYER_BASE_PROJECTILE_SPEED,
+    PLAYER_BASE_PROJECTILE_SIZE
 )
 from entities.projectiles.player_projectiles import ATTACK_TYPE_CLASS
 from systems.collision_system import CollisionSystem
@@ -47,6 +48,8 @@ class Player(pygame.sprite.Sprite):
         self.damage = self.base_damage
         self.base_fire_rate = PLAYER_BASE_FIRE_RATE
         self.fire_rate = self.base_fire_rate
+        self.base_proj_size = PLAYER_BASE_PROJECTILE_SIZE
+        self.proj_size = self.base_proj_size
         
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0.0
@@ -190,6 +193,7 @@ class Player(pygame.sprite.Sprite):
             owner="player",
             speed=PLAYER_BASE_PROJECTILE_SPEED,
             damage=100000000 if DEBUG_MODE else self.damage,
+            img_scale=self.proj_size,
             source_player=self
         )
 
@@ -257,6 +261,7 @@ class Player(pygame.sprite.Sprite):
         self.max_hp = self.base_max_hp
         self.damage = self.base_damage
         self.fire_rate = self.base_fire_rate
+        self.proj_size = self.base_proj_size
 
         for upgrade_id, count in self.upgrades.items():
             data = self.upgrades_data[upgrade_id]

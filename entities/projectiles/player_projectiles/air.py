@@ -15,13 +15,14 @@ class Air(Projectile):
         owner: str,
         speed: float,
         damage: int,
+        img_scale: float,
         source_player
     ):
         dir_vec = pygame.Vector2(direction)
         angle = -math.degrees(math.atan2(dir_vec.y, dir_vec.x)) if dir_vec.length_squared() > 0 else 0
 
         # Récupération et transformation de l'image via l'AssetManager
-        image = AssetManager.get_image("assets/player_projectile/air.png", scale_by=0.07, rotate=angle)
+        image = AssetManager.get_image("assets/player_projectile/air.png", scale_by=0.07*img_scale, rotate=angle)
 
         super().__init__(
             play_area=area,
