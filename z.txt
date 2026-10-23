@@ -29,7 +29,7 @@ UPGRADES PASSIFS — JOUEUR ET FAMILIERS
 - Puppets : ajoute un familier qui suit le joueur et tire automatiquement.
 - Puppets — puissance : augmente les dégâts des familiers.
 - Puppets — cadence : augmente la fréquence de tir des familiers.
-- Pacte dangereux : augmente les dégâts du joueur et des ennemis.
+- Pacte dangereux : augmente les dégâts, divise la resistance.
 - Projectiles de soin : transforme certains tirs ennemis en orbes de soin distincts.
 - Soin amélioré : augmente la vie rendue par les orbes de soin.
 - Recharge magique : réduit le temps de recharge des sorts.
