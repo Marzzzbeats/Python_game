@@ -37,12 +37,12 @@ class Door:
         self.frame_duration = 0.04  # Secondes entre deux frames
 
         # Zone d'entrée placée juste devant la porte
-        self.trigger_rect = pygame.Rect(0, 0, self.rect.width, 100)
+        self.trigger_rect = pygame.Rect(0, 0, round(self.rect.width*1.1), 100)
         self.trigger_rect.midtop = self.rect.midbottom
 
         # Zone au seuil pour avoir l'amélioration
         self.entry_rect = pygame.Rect(
-            0, 0, round(self.rect.width * 0.7), 10
+            0, 0, round(self.rect.width * 0.65), 5
         )
         self.entry_rect.midtop = self.rect.midbottom
 
