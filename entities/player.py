@@ -11,7 +11,8 @@ from core.constants import (
     PLAYER_BASE_MAX_HP,
     PLAYER_BASE_PROJECTILE_DAMAGE,
     PLAYER_BASE_PROJECTILE_SPEED,
-    PLAYER_BASE_PROJECTILE_SIZE
+    PLAYER_BASE_PROJECTILE_SIZE,
+    PLAYER_BASE_PROJECTILE_SHIELD
 )
 from entities.projectiles.player_projectiles import ATTACK_TYPE_CLASS
 from systems.collision_system import CollisionSystem
@@ -50,6 +51,8 @@ class Player(pygame.sprite.Sprite):
         self.fire_rate = self.base_fire_rate
         self.base_proj_size = PLAYER_BASE_PROJECTILE_SIZE
         self.proj_size = self.base_proj_size
+        self.base_shield = PLAYER_BASE_PROJECTILE_SHIELD
+        self.shield = self.base_shield
         
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0.0
@@ -164,7 +167,7 @@ class Player(pygame.sprite.Sprite):
         if debug or self.invulnerable_timer > 0:
             return
 
-        self.hp -= amount
+        self.hp -= round(amount * (1 - self.shield))
         self.invulnerable_timer = self.invulnerable_duration
 
         if self.hp <= 0:

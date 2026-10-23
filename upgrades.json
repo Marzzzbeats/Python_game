@@ -3,7 +3,7 @@
         "type" : "stat",
         "name": "Vitalité",
         "stat": "max_hp",
-        "bonus": 1,
+        "bonus": 10,
         "max_stacks": 1
     },
     "speed": {
@@ -17,7 +17,7 @@
         "type" : "stat",
         "name": "Puissance",
         "stat": "damage",
-        "bonus": 1,
+        "bonus": 10,
         "max_stacks": 1
     },
     "fire_rate": {
@@ -32,6 +32,13 @@
         "nae": "Gros projectiles",
         "stat": "proj_size",
         "bonus": 0.2,
+        "max_stacks": 1
+    },
+    "shield": {
+        "type": "stat",
+        "nae": "Bouclier",
+        "stat": "shield",
+        "bonus": 0.05,
         "max_stacks": 1
     },
     "heal": {
