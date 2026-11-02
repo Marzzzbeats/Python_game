@@ -6,7 +6,7 @@
                     "id": 0,
                     "enemies": [
                         {
-                            "class": "CinderImp",
+                            "class": "Bloodwing",
                             "count": 2
                         }
                     ],
