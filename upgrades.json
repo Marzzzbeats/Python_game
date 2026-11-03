@@ -89,5 +89,11 @@
         "attack_type": "Radiation",
         "description": "Réduit les dégâts directs, mais ajoute une explosion à l'impact.",
         "max_stacks": 1
+    },
+    "multi_shot": {
+        "type": "pattern",
+        "name": "Tir multiple",
+        "description": "Améliore la disposition des tirs, jusqu'à cinq projectiles.",
+        "max_stacks": 4
     }
 }
