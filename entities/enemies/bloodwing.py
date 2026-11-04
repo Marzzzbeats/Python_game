@@ -3,7 +3,7 @@ import pygame
 import random
 from core.asset_manager import AssetManager
 from entities.enemies.enemy import Enemy
-from entities.projectiles.enemy_projectile import circle_projectile
+from entities.projectiles.enemy_projectile import circle
 
 
 class Bloodwing(Enemy):
@@ -32,9 +32,11 @@ class Bloodwing(Enemy):
 
         self.name = "bloodwing"
 
-        self.fire_rate = 0.8  # tirs par seconde
+        self.fire_rate = 0.5  # tirs par seconde
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0
+
+        self.circles = []
 
         self.radius = 200
 
@@ -59,6 +61,9 @@ class Bloodwing(Enemy):
 
         self.update_position(combined_dir * self.speed * dt, play_area)
 
+        for circle in self.circles:
+            circle.update(dt)
+
     def createCircle(self, r:float, center:tuple)->list:
         """Renvoie des coordonnées de points compris dans le permietre d'un cercle, on s'en servira pour l'attaque du cercle troué"""
         coordinates = []
@@ -77,17 +82,12 @@ class Bloodwing(Enemy):
         return coordinates
 
     
-    def shoot(self, screen, projectile_group : pygame.sprite.Group):
+    def shoot(self, screen, projectile_group):
         """Tire l'attaque de l'nnemi"""
         coordinates = self.createCircle(self.radius, (self.pos[0] + self.radius + 1, self.pos[1]))
+        circle_proj = circle.Circle(screen, self.pos, pygame.Vector2(0,1), coordinates, projectile_group)
+        self.circles.append(circle_proj)
         print("ok")
-        for i in range(len(coordinates)) :
-            proj = pygame.Vector2(coordinates[i])
-            next = pygame.Vector2(coordinates[(i+1)%len(coordinates)])
-            direction = (next - proj).normalize()
-            projectile = circle_projectile.CircleProjectile(screen, proj, direction, coordinates, self.name)
-            if projectile_group is not None :
-                projectile_group.add(projectile)
-        return coordinates
+        
 
         

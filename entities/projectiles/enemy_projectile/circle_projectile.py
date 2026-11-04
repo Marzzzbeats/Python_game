@@ -1,9 +1,8 @@
 import pygame
 from core.asset_manager import AssetManager
 from entities.projectiles.projectile import Projectile
-from entities.projectiles.enemy_projectile.circle import Circle
 
-class CircleProjectile(Circle, Projectile):
+class CircleProjectile(Projectile):
     """Cercle de boules de feu tirée par les ennemis (ex: bloodwing)."""
 
     def __init__(
@@ -11,7 +10,7 @@ class CircleProjectile(Circle, Projectile):
         screen: pygame.Surface,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
-        owner: str,
+        owner: str = "bloodwing",
         speed: float = 200,
         damage: int = 1
     ):
@@ -28,13 +27,7 @@ class CircleProjectile(Circle, Projectile):
             hitbox_scale=0.7
         )
 
-    def update(self, dt):
-
-
-        
-        return
-
-    def getPos(self)->tuple:
+    def getPos(self)->tuple | pygame.Vector2:
         """Renvoie la position du projectile"""
         return self.pos
 
