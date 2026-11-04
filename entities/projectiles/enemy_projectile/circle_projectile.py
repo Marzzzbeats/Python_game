@@ -28,12 +28,14 @@ class CircleProjectile(Circle, Projectile):
             hitbox_scale=0.7
         )
 
-        self.circle_coordinates = circle_coordinates
-
     def update(self, dt):
 
 
         
         return
 
-        
+    def getPos(self)->tuple:
+        """Renvoie la position du projectile"""
+        return self.pos
+
+    
