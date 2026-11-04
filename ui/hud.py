@@ -91,7 +91,7 @@ class HUD:
         screen.blit(rendered_info, (40, 30))
 
         if is_cleared:
-            cleared_surf = large_font.render("SALLE NETTOYÉE ! [N] pour avancer", True, (100, 255, 120))
+            cleared_surf = large_font.render("SALLE NETTOYÉE !", True, (100, 255, 120))
             screen.blit(cleared_surf, ((screen.get_width() - cleared_surf.get_width()) // 2, 30))
 
     def draw_game_over(self, screen: pygame.Surface, dt: float):
