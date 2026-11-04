@@ -32,7 +32,7 @@ class Bloodwing(Enemy):
 
         self.name = "bloodwing"
 
-        self.fire_rate = 0.5  # tirs par seconde
+        self.fire_rate = 0.8  # tirs par seconde
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0
 
@@ -77,7 +77,7 @@ class Bloodwing(Enemy):
             y = cy + r * math.sin(theta)
             coordinates.append((x,y))
             theta += (math.pi / 8)
-        random.shuffle(coordinates)
+        coordinates.pop()
         coordinates.pop() #J'enlève un des projectiles pour creer une ouverture dans l'onde
         return coordinates
 
