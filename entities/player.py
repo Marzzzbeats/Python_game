@@ -13,7 +13,8 @@ from core.constants import (
     PLAYER_BASE_PROJECTILE_DAMAGE,
     PLAYER_BASE_PROJECTILE_SPEED,
     PLAYER_BASE_PROJECTILE_SIZE,
-    PLAYER_BASE_PROJECTILE_SHIELD
+    PLAYER_BASE_PROJECTILE_SHIELD,
+    PLAYER_BASE_SHARD_AMOUNT
 )
 from entities.projectiles.player_projectiles import ATTACK_TYPE_CLASS
 from systems.collision_system import CollisionSystem
@@ -22,7 +23,7 @@ from systems.collision_system import CollisionSystem
 class Player(pygame.sprite.Sprite):
     """Entité Joueur avec contrôles (AZERTY/QWERTY/Manette), animations et tir."""
 
-    def __init__(self, play_surface: pygame.Surface, play_area: pygame.Rect):
+    def __init__(self, play_surface: pygame.Surface, play_area: pygame.Rect, global_projectiles: pygame.sprite.Group):
         super().__init__()
 
         self.play_surface = play_surface
@@ -55,10 +56,13 @@ class Player(pygame.sprite.Sprite):
         self.proj_size = self.base_proj_size
         self.base_shield = PLAYER_BASE_PROJECTILE_SHIELD
         self.shield = self.base_shield
+        self.base_shard_amount = PLAYER_BASE_SHARD_AMOUNT
+        self.shard_amount = self.base_shard_amount
         
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0.0
         self.dead = False
+        self.can_repsawn = False
 
 
         self.upgrades: dict[str, int] = {}
@@ -93,6 +97,8 @@ class Player(pygame.sprite.Sprite):
 
         self.look_direction = pygame.Vector2(1, 0)
 
+        self.global_projectiles = global_projectiles
+
         # Image et Hitbox
         self.image = self.sprites[self.state][self.sprite_direction][self.frame]
         self.rect = self.image.get_rect(center=self.play_surface.get_rect().center)
@@ -100,6 +106,9 @@ class Player(pygame.sprite.Sprite):
         self.hitbox = self.rect.copy()
         self.hitbox.scale_by_ip(PLAYER_BASE_HITBOX_SCALE)
         self.sync_hitbox()
+
+
+        self.spawn_arcanic_crystal(self.global_projectiles)
 
 
     def _get_shot_pattern(self) -> list[tuple[float, float]]:
@@ -216,9 +225,17 @@ class Player(pygame.sprite.Sprite):
         self.invulnerable_timer = self.invulnerable_duration
 
         if self.hp <= 0:
-            self.hp = 0
-            self.dead = True
-            self.state = "death"
+            print("res avant wsh\n\n\n")
+            if self.can_repsawn == True:
+                print("res")
+                self.hp = self.max_hp
+                self.state = "respawning"
+                self.can_repsawn = False
+                self.invulnerable_timer = 3.0
+            else:
+                self.hp = 0
+                self.dead = True
+                self.state = "death"
 
     def life_steal(self, amount: float) -> None:
         """Restaure une proportion des PV maximum."""
@@ -301,6 +318,8 @@ class Player(pygame.sprite.Sprite):
         self.damage = self.base_damage
         self.fire_rate = self.base_fire_rate
         self.proj_size = self.base_proj_size
+        self.shield = self.base_shield
+        self.shard_amount = self.base_shard_amount
 
         for upgrade_id, count in self.upgrades.items():
             data = self.upgrades_data[upgrade_id]
@@ -320,26 +339,29 @@ class Player(pygame.sprite.Sprite):
 
     def _handle_consumable(self, upgrade_id: str) -> None:
         """Applique l'effet d'un consommable."""
-        if upgrade_id == "heal":
-            bonus = self.upgrades_data[upgrade_id]["bonus"]
-            self.hp = round(min(self.max_hp, self.hp + self.max_hp * bonus))
-
+        match upgrade_id:
+            case "heal":
+                bonus = self.upgrades_data[upgrade_id]["bonus"]
+                self.hp = round(min(self.max_hp, self.hp + self.max_hp * bonus))
+            case "second_life":
+                self.can_repsawn = True
 
     def add_upgrade(self, upgrade_id: str, upgrade_data: dict) -> None:
         """Ajoute un upgrade et actualise les stats."""
         self.upgrades_data[upgrade_id] = upgrade_data.copy()
         self.upgrades[upgrade_id] = self.upgrades.get(upgrade_id, 0) + 1
         upgrade_type = self.upgrades_data[upgrade_id]["type"]
-        if upgrade_type == "stat":
-            self._recalculate_stats()
-        elif upgrade_type == "consumable":
-            self._handle_consumable(upgrade_id)
-        elif upgrade_type == "attack":
-            self._change_attack_type(upgrade_id)
-        elif upgrade_type == "spell":
-            pass
-        elif upgrade_type == "pattern":
-            self.shot_pattern = self._get_shot_pattern()
+        match upgrade_type:
+            case "stat":
+                self._recalculate_stats()
+            case "consumable":
+                self._handle_consumable(upgrade_id)
+            case "attack":
+                self._change_attack_type(upgrade_id)
+            case "spell":
+                pass
+            case "pattern":
+                self.shot_pattern = self._get_shot_pattern()
 
     def handle_inputs(self, dt: float, obstacles: pygame.sprite.Group, global_projectiles: pygame.sprite.Group):
         """Gère les entrées utilisateur pour le déplacement et l'attaque."""
@@ -357,6 +379,7 @@ class Player(pygame.sprite.Sprite):
 
         # Ralentissement lors du tir continu
         move_speed = self.speed * 0.8 if shoot_pressed else self.speed
+        move_speed = 800 if DEBUG_MODE else move_speed
 
         target_velocity = move_dir * move_speed
         factor = min(1.0, 30 * dt)
@@ -381,7 +404,23 @@ class Player(pygame.sprite.Sprite):
             self.shoot(global_projectiles)
             self.shoot_timer = self.shoot_cooldown
 
-    def update(self, dt: float, obstacles: pygame.sprite.Group, global_projectiles: pygame.sprite.Group):
+    def spawn_arcanic_crystal(self, target_group: pygame.sprite.Group) -> None:
+        for _ in range(self.shard_amount):
+            shard = self.attack_type(
+                area=self.play_area,
+                pos=self.hitbox.center,
+                direction=self.look_direction,
+                owner="player",
+                speed=PLAYER_BASE_PROJECTILE_SPEED,
+                damage=100000000 if DEBUG_MODE else self.damage,
+                img_scale=self.proj_size,
+                source_player=self
+            )
+
+            target_group.add(shard)
+            self.player_projectiles.add(shard)
+
+    def update(self, dt: float, obstacles: pygame.sprite.Group):
         """Mise à jour principale du joueur."""
         if self.shoot_timer > 0:
             self.shoot_timer -= dt
@@ -393,7 +432,7 @@ class Player(pygame.sprite.Sprite):
             self.cast_timer -= dt
 
         if not self.dead:
-            self.handle_inputs(dt, obstacles, global_projectiles)
+            self.handle_inputs(dt, obstacles, self.global_projectiles)
 
         self.animate(dt)
 
