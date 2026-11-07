@@ -8,6 +8,10 @@
                         {
                             "class": "Bloodwing",
                             "count": 5
+                        },
+                        {
+                            "class": "CinderImp",
+                            "count": 2
                         }
                     ],
                     "layout": [

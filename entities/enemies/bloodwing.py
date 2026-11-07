@@ -42,7 +42,7 @@ class Bloodwing(Enemy):
 
         self.radius = 200
 
-    def update(self, dt: float, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
+    def update(self, dt: float, obstacles=None, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
         super().update(dt, player, play_area, projectile_group)
 
         if player is None or player.dead or self.is_dead:
@@ -61,7 +61,7 @@ class Bloodwing(Enemy):
                 self.shoot(player.play_surface, projectile_group)
                 self.shoot_timer = self.shoot_cooldown
 
-        self.update_position(combined_dir * self.speed * dt, play_area)
+        self.update_position(combined_dir * self.speed * dt, obstacles, play_area)
 
         indices_a_retirer = []
 

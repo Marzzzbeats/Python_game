@@ -24,11 +24,11 @@ class Spikeborn(Enemy):
             hitbox_scale=0.7
         )
 
-    def update(self, dt: float, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
-        super().update(dt, player, play_area, projectile_group)
+    def update(self, dt: float, obstacles=None, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
+        super().update(dt, obstacles, player, play_area, projectile_group)
 
         if player is None or player.dead or self.is_dead:
             return
 
         direction = self.get_direction_to(player.rect.center)
-        self.update_position(direction * self.speed * dt, play_area)
+        self.update_position(direction * self.speed * dt, obstacles, play_area)

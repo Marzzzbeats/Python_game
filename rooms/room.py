@@ -113,7 +113,7 @@ class Room:
     def update(self, dt: float, player, global_projectiles: pygame.sprite.Group):
         """Met à jour l'ensemble des ennemis et projectiles ennemis."""
         for enemy in self.enemies:
-            enemy.update(dt, player=player, play_area=self.play_area, projectile_group=self.enemy_projectiles)
+            enemy.update(dt, self.obstacles ,player=player, play_area=self.play_area, projectile_group=self.enemy_projectiles)
 
         if len(self.enemies) < self.max_enemies :
             self.spawnEnemy() 

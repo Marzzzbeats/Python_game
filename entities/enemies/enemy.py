@@ -1,6 +1,6 @@
 import pygame
 from core.asset_manager import AssetManager
-
+from systems.collision_system import CollisionSystem
 
 class Enemy(pygame.sprite.Sprite):
     """Classe de base pour tous les ennemis avec gestion des PV, feedback de dégâts et IA modulaire."""
@@ -57,16 +57,20 @@ class Enemy(pygame.sprite.Sprite):
         """Calcule la distance avec une position cible."""
         return self.pos.distance_to(pygame.Vector2(target_pos))
 
-    def update_position(self, delta: pygame.Vector2, play_area: pygame.Rect | None = None):
+    def can_move_to(self, new_rect, obstacles: pygame.sprite.Group) -> bool:
+            """Vérifie que la future position est sans collision obstacle."""
+            return not CollisionSystem.check_obstacle_collision(new_rect, obstacles)
+
+    def update_position(self, delta: pygame.Vector2, obstacles:pygame.sprite.Group, play_area: pygame.Rect | None = None):
         """Déplace l'ennemi en restant dans l'aire de jeu."""
         new_pos = self.pos + delta
         new_rect = self.rect.copy()
         new_rect.center = (round(new_pos.x), round(new_pos.y))
-
-        if play_area is None or play_area.contains(new_rect):
-            self.pos = new_pos
-            self.rect.center = (round(self.pos.x), round(self.pos.y))
-            self.hitbox.center = self.rect.center
+        if self.can_move_to(new_rect, obstacles):
+            if play_area is None or play_area.contains(new_rect):
+                self.pos = new_pos
+                self.rect.center = (round(self.pos.x), round(self.pos.y))
+                self.hitbox.center = self.rect.center
 
     def update_visuals(self, dt: float):
         """Gère le clignotement / flash lors des dégâts."""
@@ -100,6 +104,6 @@ class Enemy(pygame.sprite.Sprite):
         surface.blit(self.image, self.rect)
         self.draw_health_bar(surface)
 
-    def update(self, dt: float, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
+    def update(self, dt: float, obstacles=None, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
         """Méthode de mise à jour générale à surcharger par les ennemis concrets."""
         self.update_visuals(dt)
