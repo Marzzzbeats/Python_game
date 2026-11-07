@@ -30,10 +30,9 @@ class Circle():
 
     def updateCoordinates(self):
         """Met a jour les coordonnées en fonction de la position de chaque projectile"""
-        ind = 0
+        self.circle_coordinates = [] #Remet à zero et ne stock donc plus les coordonnées des projectiles morts
         for projectile in self.inner_projectiles :
-            self.circle_coordinates[ind] = projectile.getPos()
-
+            self.circle_coordinates.append(projectile.getPos())
 
     def update(self, dt):
         for i in range(len(self.circle_coordinates)):

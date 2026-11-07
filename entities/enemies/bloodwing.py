@@ -32,11 +32,13 @@ class Bloodwing(Enemy):
 
         self.name = "bloodwing"
 
-        self.fire_rate = 0.8  # tirs par seconde
+        self.fire_rate = 0.5  # tirs par seconde
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0
 
         self.circles = []
+
+        self.speed = 50.0
 
         self.radius = 200
 
@@ -61,11 +63,21 @@ class Bloodwing(Enemy):
 
         self.update_position(combined_dir * self.speed * dt, play_area)
 
-        for circle in self.circles:
-            circle.update(dt)
+        indices_a_retirer = []
+
+        for i in range(len(self.circles)):
+
+            if self.circles[i].circle_coordinates == []:
+                indices_a_retirer.append(i)
+            else:
+                self.circles[i].update(dt)
+
+        for ind in indices_a_retirer :
+            self.circles.pop(ind)
+
 
     def createCircle(self, r:float, center:tuple)->list:
-        """Renvoie des coordonnées de points compris dans le permietre d'un cercle, on s'en servira pour l'attaque du cercle troué"""
+        """Renvoie des coordonnées de points compris dans le permietre d'un cercle, on s'en servira pour l'attaque cercle"""
         coordinates = []
         theta = 0
         cx = center[0]
@@ -77,14 +89,12 @@ class Bloodwing(Enemy):
             y = cy + r * math.sin(theta)
             coordinates.append((x,y))
             theta += (math.pi / 8)
-        coordinates.pop()
-        coordinates.pop() #J'enlève un des projectiles pour creer une ouverture dans l'onde
         return coordinates
 
     
     def shoot(self, screen, projectile_group):
         """Tire l'attaque de l'nnemi"""
-        coordinates = self.createCircle(self.radius, (self.pos[0] + self.radius + 1, self.pos[1]))
+        coordinates = self.createCircle(self.radius, self.pos)
         circle_proj = circle.Circle(screen, self.pos, pygame.Vector2(0,1), coordinates, projectile_group)
         self.circles.append(circle_proj)
         print("ok")
