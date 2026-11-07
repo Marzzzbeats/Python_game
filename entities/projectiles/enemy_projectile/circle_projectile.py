@@ -11,7 +11,7 @@ class CircleProjectile(Projectile):
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
         owner: str = "bloodwing",
-        speed: float = 200,
+        speed: float = 200.0,
         damage: int = 1
     ):
         image = AssetManager.get_image("assets/enemy_projectile/cinder_imp.png", scale_by=2.0)
@@ -31,4 +31,6 @@ class CircleProjectile(Projectile):
         """Renvoie la position du projectile"""
         return self.pos
 
-    
+    def getSpeed(self)->float:
+        """Retourne la vitesse du projectile"""
+        return self.speed

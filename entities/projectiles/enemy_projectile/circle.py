@@ -16,6 +16,7 @@ class Circle():
         self.circle_direction = direction
         self.circle_coordinates = circle_coordinates
         self.all_proj = projectile_group
+        self.inner_projectiles = pygame.sprite.Group() #groupe des projectiles internes au cerle
         self.circle_speed = 100
 
         for i in range(len(self.circle_coordinates)):
@@ -23,13 +24,14 @@ class Circle():
             next = pygame.Vector2(self.circle_coordinates[(i+1)%len(self.circle_coordinates)]) #Le prochain dans la liste (le modulo permet que le dernier de la liste suive le premier)
             direction = (next - proj).normalize() 
             projectile = circle_projectile.CircleProjectile(screen, proj, direction)
-            self.all_proj.add(projectile)
+            self.all_proj.add(projectile) #pour la gestion de la logique du jeu
+            self.inner_projectiles.add(projectile) #et celui la pour la gestion de l'update propre au cercle
 
 
     def updateCoordinates(self):
         """Met a jour les coordonnées en fonction de la position de chaque projectile"""
         ind = 0
-        for projectile in self.all_proj :
+        for projectile in self.inner_projectiles :
             self.circle_coordinates[ind] = projectile.getPos()
 
 
@@ -37,5 +39,4 @@ class Circle():
         for i in range(len(self.circle_coordinates)):
             self.circle_coordinates[i] += self.circle_direction * self.circle_speed * dt
         self.updateCoordinates()
-        print(self.circle_coordinates)
-        self.all_proj.update(dt)
+        self.inner_projectiles.update(dt)
