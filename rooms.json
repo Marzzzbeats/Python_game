@@ -7,7 +7,7 @@
                     "enemies": [
                         {
                             "class": "Bloodwing",
-                            "count": 1
+                            "count": 5
                         }
                     ],
                     "layout": [
