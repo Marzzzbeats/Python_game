@@ -29,7 +29,7 @@ PLAY_AREA_H_RATIO = 0.6993642
 PLAYER_BASE_SPEED = 400.0
 PLAYER_MAX_HP = 10
 PLAYER_FIRE_RATE = 1.0  # tirs par seconde
-PLAYER_HITBOX_SCALE = 0.4
+PLAYER_HITBOX_SCALE = 0.3
 JOYSTICK_DEADZONE = 0.15
 
 # --- Projectiles ---
@@ -44,7 +44,7 @@ OBSTACLE_SYMBOLS = {
     "W": "Wall",
     "C": "Container",
     "S": "Stone",
-    "B": "Container",  # Baril/Container fallback
+    "B": "Container",
 }
 
 # --- Débug ---
