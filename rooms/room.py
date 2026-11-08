@@ -90,6 +90,7 @@ class Room:
                 pos = self.grid_to_world(col, row)
             else:
                 # Coordonnées de secours si aucune case libre n'est disponible
+                print("random_tile")
                 pos = (self.grid_x + random.randint(50, int(self.grid_width - 50)), self.grid_y + random.randint(50, int(self.grid_height - 50)))
 
 
@@ -108,7 +109,7 @@ class Room:
 
     def is_cleared(self) -> bool:
         """Indique si tous les ennemis de la salle ont été éliminés."""
-        return len(self.all_enemies) == 0
+        return len(self.all_enemies) == 0 and len(self.enemies) == 0
 
     def update(self, dt: float, player, global_projectiles: pygame.sprite.Group):
         """Met à jour l'ensemble des ennemis et projectiles ennemis."""
