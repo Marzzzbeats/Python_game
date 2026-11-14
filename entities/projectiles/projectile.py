@@ -6,7 +6,7 @@ class Projectile(pygame.sprite.Sprite):
 
     def __init__(
         self,
-        play_surface: pygame.Surface,
+        play_area: pygame.Rect,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
         speed: float,
@@ -14,11 +14,13 @@ class Projectile(pygame.sprite.Sprite):
         image: pygame.Surface,
         owner: str,
         lifetime: float = 5.0,
-        hitbox_scale: float = 1.0
+        remaining_pierces: int = 0,
+        hitbox_scale: float = 1.0,
+        source_player: pygame.sprite.Sprite | None = None
     ):
         super().__init__()
 
-        self.screen = play_surface  #Change nous ça baptiste
+        self.area = play_area
         self.pos = pygame.Vector2(pos)
 
         dir_vec = pygame.Vector2(direction)
@@ -31,6 +33,8 @@ class Projectile(pygame.sprite.Sprite):
         self.damage = damage
         self.lifetime = lifetime
         self.elapsed_time = 0.0
+        self.remaining_pierces = remaining_pierces
+        self.hit_enemies = set()
 
         self.image = image
         self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
@@ -40,12 +44,21 @@ class Projectile(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.owner = owner
+        self.source_player = source_player
 
     def scale_hitbox(self, scale_ratio: float = 1.0):
         """Redimensionne la hitbox relative à l'image."""
         if scale_ratio != 1.0:
             self.hitbox.scale_by_ip(scale_ratio)
             self.hitbox.center = self.rect.center
+
+    def on_hit(self, enemy, enemies: pygame.sprite.Group, effects: pygame.sprite.Group) -> None:
+        """Applique les effets du projectile à l'impact."""
+        pass
+
+    def _reset_hit_enemies(self):
+        """Reset les enemies touchés"""
+        self.hit_enemies = set()
 
     def move(self, dt: float):
         """Met à jour la position et synchronise rect et hitbox."""
@@ -58,10 +71,12 @@ class Projectile(pygame.sprite.Sprite):
         self.elapsed_time += dt
         if self.elapsed_time >= self.lifetime:
             self.kill()
+            self._reset_hit_enemies()
             return
 
         self.move(dt)
 
         # Si le projectile quitte la zone de jeu
-        if not self.rect.colliderect(self.screen.get_rect()):
+        if not self.area.contains(self.rect):
             self.kill()
+            self._reset_hit_enemies()

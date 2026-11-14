@@ -5,13 +5,13 @@ class Circle():
     """Crée le cercle de base d'attaque"""
 
     def __init__(self,
-                 screen: pygame.Surface,
+                 area: pygame.rect,
                  center: tuple[float, float] | pygame.Vector2,
                  direction : pygame.Vector2,
                  circle_coordinates : list[tuple],
                  projectile_group : pygame.sprite.Group):
         
-        self.screen = screen
+        self.area = area
         self.circle_center = center
         self.circle_direction = direction
         self.circle_coordinates = circle_coordinates
@@ -23,7 +23,7 @@ class Circle():
             proj = pygame.Vector2(self.circle_coordinates[i])
             next = pygame.Vector2(self.circle_coordinates[(i+1)%len(self.circle_coordinates)]) #Le prochain dans la liste (le modulo permet que le dernier de la liste suive le premier)
             direction = (next - proj).normalize() 
-            projectile = circle_projectile.CircleProjectile(screen, proj, direction)
+            projectile = circle_projectile.CircleProjectile(area, proj, direction)
             self.all_proj.add(projectile) #pour la gestion de la logique du jeu
             self.inner_projectiles.add(projectile) #et celui la pour la gestion de l'update propre au cercle
 

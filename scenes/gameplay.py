@@ -15,6 +15,7 @@ from core.constants import (
 )
 from entities.player import Player
 from rooms.room_manager import RoomManager
+from entities.interactables.reward_manager import RewardManager
 from scenes.scene import Scene
 from systems.collision_system import CollisionSystem
 from ui.hud import HUD
@@ -46,17 +47,23 @@ class Gameplay(Scene):
         # Groupe global pour tous les projectiles (joueur + ennemis)
         self.all_projectiles = pygame.sprite.Group()
 
+        # Gestionnaire des rewards
+        self.reward_manager = RewardManager()
+
+        # Joueur
+        self.player = Player(self.play_surface, self.play_area)
+
         # Gestionnaire de salles et progression
         self.room_manager = RoomManager("rooms.json")
         self.current_room = self.room_manager.create_room(
             tier=0,
             room_index=0,
             play_surface=self.play_surface,
-            play_area=self.play_area
+            play_area=self.play_area,
+            reward_manager=self.reward_manager,
+            player_upgrades=self.player.upgrades
         )
-
-        # Joueur
-        self.player = Player(self.play_surface, self.play_area)
+        self.transitioning = False
 
         # Interface HUD
         self.hud = HUD(self.game.screen.get_size())
@@ -64,24 +71,33 @@ class Gameplay(Scene):
     def restart_game(self):
         """Réinitialise la partie après un Game Over."""
         self.all_projectiles.empty()
-        self.current_room = self.room_manager.reset(self.play_surface, self.play_area)
+        self.current_room = self.room_manager.reset(self.play_surface, self.play_area, self.reward_manager, self.player.upgrades)
         self.player = Player(self.play_surface, self.play_area)
         self.hud.reset_game_over()
 
     def advance_to_next_room(self):
         """Passe à la salle suivante tout en conservant l'état du joueur."""
+        self.player.player_projectiles.empty()
         self.all_projectiles.empty()
-        self.current_room = self.room_manager.next_room(self.play_surface, self.play_area)
+        self.current_room = self.room_manager.next_room(self.play_surface, self.play_area, self.reward_manager, self.player.upgrades)
         # Recentrer le joueur sur la nouvelle salle
         self.player.rect.center = self.play_surface.get_rect().center
         self.player.sync_hitbox()
+        self.transitioning = False
+
+    def check_transition(self) -> None:
+        door = self.current_room.selected_door
+        if door is not None and not self.transitioning:
+            self.transitioning = True
+            self.player.add_upgrade(door.reward_id, self.reward_manager.data[door.reward_id])
+            self.advance_to_next_room()
 
     def handle_events(self, event: pygame.event.Event):
         super().handle_events(event)
 
         if event.type == pygame.KEYDOWN:
             # Touche F3 : bascule du mode débug
-            if event.key == pygame.K_F3:
+            if event.key == pygame.K_F3 or event.key == pygame.K_3:
                 if DEBUG_MODE:
                     DEBUG_MODE.pop()
                 else:
@@ -90,10 +106,6 @@ class Gameplay(Scene):
             # Touche R : recommencer
             elif event.key == pygame.K_r and self.player.dead:
                 self.restart_game()
-
-            # Touche N : passer à la salle suivante si la salle est nettoyée
-            elif event.key == pygame.K_n and self.current_room.is_cleared():
-                self.advance_to_next_room()
 
     def update(self, dt: float):
         # En cas de mort du joueur, seule son animation finale et le fondu continuent
@@ -105,7 +117,10 @@ class Gameplay(Scene):
         self.player.update(dt, self.current_room.obstacles, self.all_projectiles)
 
         # Mise à jour de la salle et des ennemis
-        self.current_room.update(dt, self.player, self.all_projectiles)
+        self.current_room.update(dt, self.player, self.all_projectiles, DEBUG_MODE)
+
+        # Vérifie le choix de l'amélioration et du passage a la room suivante
+        self.check_transition()
 
         # Mise à jour des projectiles
         self.all_projectiles.update(dt)
@@ -113,7 +128,8 @@ class Gameplay(Scene):
         # Détection et résolution des collisions via le CollisionSystem
         CollisionSystem.handle_player_projectiles_vs_enemies(
             self.player.player_projectiles,
-            self.current_room.enemies
+            self.current_room.enemies,
+            effects=self.current_room.effects
         )
         CollisionSystem.handle_enemy_projectiles_vs_player(
             self.current_room.enemy_projectiles,

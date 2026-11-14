@@ -4,6 +4,7 @@ import random
 from core.asset_manager import AssetManager
 from entities.enemies.enemy import Enemy
 from entities.projectiles.enemy_projectile import circle
+from core.constants import ENEMY_BASE_PROJECTILE_DAMAGE, ENEMY_BASE_PROJECTILE_SPEED, ENEMY_BASE_MAX_HP, ENEMY_BASE_SPEED, ENEMY_BASE_CONTACT_DAMAGE
 
 
 class Bloodwing(Enemy):
@@ -12,9 +13,9 @@ class Bloodwing(Enemy):
     def __init__(
         self,
         pos: tuple[float, float] | pygame.Vector2,
-        speed: float = 170.0,
-        damage: int = 1,
-        max_hp: int = 5
+        speed: float = ENEMY_BASE_SPEED*1.1,
+        damage: int = ENEMY_BASE_PROJECTILE_DAMAGE,
+        max_hp: int = ENEMY_BASE_MAX_HP*0.8,
     ):
         image = AssetManager.get_image("assets/enemies/bloodwing.png", scale_by=0.6)
         super().__init__(
@@ -58,7 +59,7 @@ class Bloodwing(Enemy):
         self.shoot_timer -= dt
         if self.shoot_timer <= 0:
             if projectile_group is not None:
-                self.shoot(player.play_surface, projectile_group)
+                self.shoot(player.play_area, projectile_group)
                 self.shoot_timer = self.shoot_cooldown
 
         self.update_position(combined_dir * self.speed * dt, obstacles, play_area)
@@ -92,10 +93,10 @@ class Bloodwing(Enemy):
         return coordinates
 
     
-    def shoot(self, screen, projectile_group):
+    def shoot(self, area, projectile_group):
         """Tire l'attaque de l'nnemi"""
         coordinates = self.createCircle(self.radius, self.pos)
-        circle_proj = circle.Circle(screen, self.pos, pygame.Vector2(0,1), coordinates, projectile_group)
+        circle_proj = circle.Circle(area, self.pos, pygame.Vector2(0,1), coordinates, projectile_group)
         self.circles.append(circle_proj)
         print("ok")
         

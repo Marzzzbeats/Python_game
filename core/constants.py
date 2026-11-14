@@ -10,6 +10,7 @@ COLOR_BG = pygame.Color("#0f0e1f")
 COLOR_PLAY_AREA_BORDER = pygame.Color("pink")
 COLOR_GRID = pygame.Color("lime")
 COLOR_HITBOX_DEBUG = pygame.Color("red")
+SECONDARY_COLOR_HITBOX_DEBUG = pygame.Color("cyan")
 COLOR_HP_BAR = pygame.Color("red")
 COLOR_WHITE = pygame.Color("white")
 COLOR_COOLDOWN_OVERLAY = (200, 200, 200, 120)
@@ -27,16 +28,24 @@ PLAY_AREA_H_RATIO = 0.6993642
 
 # --- Joueur ---
 PLAYER_BASE_SPEED = 400.0
-PLAYER_MAX_HP = 10
-PLAYER_FIRE_RATE = 1.0  # tirs par seconde
-PLAYER_HITBOX_SCALE = 0.32
+PLAYER_BASE_MAX_HP = 100
+PLAYER_BASE_PROJECTILE_SHIELD = 0
+PLAYER_BASE_FIRE_RATE = 2.0  # tirs par seconde
+PLAYER_BASE_HITBOX_SCALE = 0.32
+PLAYER_BASE_PROJECTILE_SPEED = 550.0
+PLAYER_BASE_PROJECTILE_DAMAGE = 100
+PLAYER_BASE_PROJECTILE_SIZE = 1
+
 JOYSTICK_DEADZONE = 0.15
 
-# --- Projectiles ---
-PLAYER_PROJECTILE_SPEED = 550.0
-PLAYER_PROJECTILE_DAMAGE = 1
-ENEMY_PROJECTILE_SPEED = 450.0
-ENEMY_PROJECTILE_DAMAGE = 1
+
+
+# --- Enemies ---
+ENEMY_BASE_MAX_HP = 250
+ENEMY_BASE_SPEED = 120.0
+ENEMY_BASE_PROJECTILE_SPEED = 400.0
+ENEMY_BASE_PROJECTILE_DAMAGE = 10
+ENEMY_BASE_CONTACT_DAMAGE = 10
 
 # --- Symboles Layout Salles -> Obstacles ---
 OBSTACLE_SYMBOLS = {
@@ -45,6 +54,36 @@ OBSTACLE_SYMBOLS = {
     "C": "Container",
     "S": "Stone",
     "B": "Container",  # Baril/Container fallback
+}
+
+WALL_TEXTURES = {
+    # Segments droits
+    (False, True,  False, True):  "wall_00.png",
+    (True,  False, True,  False): "wall_01.png",
+
+    # Coins
+    (False, True,  True,  False): "wall_02.png",
+    (False, False, True,  True):  "wall_03.png",
+    (True,  True,  False, False): "wall_04.png",
+    (True,  False, False, True):  "wall_05.png",
+
+    # Extrémités
+    (False, True,  False, False): "wall_06.png",
+    (False, False, False, True):  "wall_07.png",
+    (True,  False, False, False): "wall_08.png",
+    (False, False, True,  False): "wall_09.png",
+
+    # Jonctions en T
+    (True,  True,  False, True):  "wall_10.png",
+    (False, True,  True,  True):  "wall_11.png",
+    (True,  True,  True,  False): "wall_12.png",
+    (True,  False, True,  True):  "wall_13.png",
+
+    # Croisement
+    (True,  True,  True,  True):  "wall_14.png",
+
+    # Plein
+    "fill" : "wall_15.png"
 }
 
 # --- Débug ---

@@ -7,7 +7,7 @@ class CircleProjectile(Projectile):
 
     def __init__(
         self,
-        screen: pygame.Surface,
+        play_area: pygame.Surface,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
         owner: str = "bloodwing",
@@ -17,7 +17,7 @@ class CircleProjectile(Projectile):
         image = AssetManager.get_image("assets/enemy_projectile/cinder_imp.png", scale_by=2.0)
 
         super().__init__(
-            play_surface=screen,
+            play_area=play_area,
             pos=pos,
             direction=direction,
             speed=speed,

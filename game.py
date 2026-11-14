@@ -1,8 +1,7 @@
 import pygame
-from core.constants import FPS
 from scenes.gameplay import Gameplay
 from scenes.scene import Scene
-from core.constants import DEBUG_MODE
+from core.constants import DEBUG_MODE, FPS
 
 
 class Game:
