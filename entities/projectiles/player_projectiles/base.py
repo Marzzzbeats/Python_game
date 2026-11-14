@@ -9,26 +9,30 @@ class Base(Projectile):
 
     def __init__(
         self,
-        screen: pygame.Surface,
+        area: pygame.Rect,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
         owner: str,
-        speed: float = 550,
-        damage: int = 1
+        damage: int,
+        speed: float,
+        img_scale: float,
+        source_player
+        
     ):
         dir_vec = pygame.Vector2(direction)
         angle = -math.degrees(math.atan2(dir_vec.y, dir_vec.x)) if dir_vec.length_squared() > 0 else 0
 
         # Récupération et transformation de l'image via l'AssetManager
-        image = AssetManager.get_image("assets/player_projectile/base.png", scale_by=0.2, rotate=angle)
+        image = AssetManager.get_image("assets/player_projectile/base.png", scale_by=0.07*img_scale, rotate=angle)
 
         super().__init__(
-            play_surface=screen,
+            play_area=area,
             pos=pos,
             direction=dir_vec,
             speed=speed,
             damage=damage,
             image=image,
             owner=owner,
-            hitbox_scale=0.8
+            hitbox_scale=0.4,
+            source_player=source_player
         )

@@ -14,13 +14,11 @@ class Obstacle(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect()
         self.hitbox = self.image.get_bounding_rect()
+        
 
-        # Ajuste la hitbox par défaut à 75% pour permettre un contournement fluide
-        self.scale_hitbox(0.75)
-
-    def scale_hitbox(self, ratio: float):
+    def scale_hitbox(self, size: tuple[int, int]):
         """Redimensionne la boîte de collision relative au centre du sprite."""
-        self.hitbox.scale_by_ip(ratio)
+        self.hitbox.scale_by(size)
         self.hitbox.center = self.rect.center
 
     def set_position(self, center_pos: tuple[int, int]):

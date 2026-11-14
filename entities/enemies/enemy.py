@@ -1,6 +1,6 @@
 import pygame
 from core.asset_manager import AssetManager
-
+from systems.collision_system import CollisionSystem
 
 class Enemy(pygame.sprite.Sprite):
     """Classe de base pour tous les ennemis avec gestion des PV, feedback de dégâts et IA modulaire."""
@@ -9,10 +9,10 @@ class Enemy(pygame.sprite.Sprite):
         self,
         pos: tuple[float, float] | pygame.Vector2,
         image: pygame.Surface,
-        speed: float = 100.0,
-        damage: int = 1,
-        max_hp: int = 5,
-        contact_damage: int = 1,
+        speed: float,
+        damage: int,
+        max_hp: int,
+        contact_damage: int,
         hitbox_scale: float = 0.6
     ):
         super().__init__()
@@ -34,7 +34,29 @@ class Enemy(pygame.sprite.Sprite):
         self.hit_flash_timer = 0.0
         self.hit_flash_duration = 0.12
 
+        self.slow_timer = 0.0
+        self.slow_multiplier = 1.0
+
+        self.burn_timer = 0.0
+        self.burn_tick_timer = 0.0
+        self.burn_tick_interval = 0.5
+        self.burn_damage = 10
+
         self.is_dead = False
+
+
+    def apply_slow(self, duration: float, multiplier: float) -> None:
+        """Applique un ralentissement temporaire."""
+        self.slow_timer = max(self.slow_timer, duration)
+        self.slow_multiplier = min(self.slow_multiplier, multiplier)
+
+    def apply_burn(self, duration: float) -> None:
+        """Applique une brûlure temporaire."""
+        if self.burn_timer <= 0:
+            self.burn_tick_timer = self.burn_tick_interval
+
+        self.burn_timer = max(self.burn_timer, duration)
+
 
     def take_damage(self, amount: int):
         """Reçoit des dégâts avec déclenchement d'un flash visuel."""
@@ -57,16 +79,20 @@ class Enemy(pygame.sprite.Sprite):
         """Calcule la distance avec une position cible."""
         return self.pos.distance_to(pygame.Vector2(target_pos))
 
-    def update_position(self, delta: pygame.Vector2, play_area: pygame.Rect | None = None):
+    def can_move_to(self, new_rect, obstacles: pygame.sprite.Group) -> bool:
+            """Vérifie que la future position est sans collision obstacle."""
+            return not CollisionSystem.check_obstacle_collision(new_rect, obstacles)
+
+    def update_position(self, delta: pygame.Vector2, obstacles:pygame.sprite.Group, play_area: pygame.Rect | None = None):
         """Déplace l'ennemi en restant dans l'aire de jeu."""
         new_pos = self.pos + delta
         new_rect = self.rect.copy()
         new_rect.center = (round(new_pos.x), round(new_pos.y))
-
-        if play_area is None or play_area.contains(new_rect):
-            self.pos = new_pos
-            self.rect.center = (round(self.pos.x), round(self.pos.y))
-            self.hitbox.center = self.rect.center
+        if self.can_move_to(new_rect, obstacles):
+            if play_area is None or play_area.contains(new_rect):
+                self.pos = new_pos
+                self.rect.center = (round(self.pos.x), round(self.pos.y))
+                self.hitbox.center = self.rect.center
 
     def update_visuals(self, dt: float):
         """Gère le clignotement / flash lors des dégâts."""
@@ -78,6 +104,25 @@ class Enemy(pygame.sprite.Sprite):
             self.image = flash_surface
         else:
             self.image = self.original_image
+
+    def update_slow(self, dt: float) -> None:
+        """Applique l'effet de ralentit."""
+        self.slow_timer = max(0.0, self.slow_timer - dt)
+        if self.slow_timer == 0.0:
+            self.slow_multiplier = 1.0
+
+    def update_burn(self, dt: float) -> None:
+        """Applique les dégâts périodiques de brûlure."""
+        if self.burn_timer <= 0 or self.is_dead:
+            return
+
+        active_dt = min(dt, self.burn_timer)
+        self.burn_timer = max(0.0, self.burn_timer - dt)
+        self.burn_tick_timer -= active_dt
+
+        while self.burn_tick_timer <= 0 and not self.is_dead:
+            self.take_damage(self.burn_damage)
+            self.burn_tick_timer += self.burn_tick_interval
 
     def draw_health_bar(self, surface: pygame.Surface):
         """Affiche une petite jauge de vie au-dessus de l'ennemi s'il est blessé."""
@@ -97,9 +142,25 @@ class Enemy(pygame.sprite.Sprite):
 
     def draw(self, surface: pygame.Surface):
         """Dessine l'ennemi et sa barre de vie."""
-        surface.blit(self.image, self.rect)
+        image_to_draw = self.image
+        if self.slow_timer > 0:
+            image_to_draw = self.image.copy()
+            image_to_draw.fill(
+                (60, 140, 255),
+                special_flags=pygame.BLEND_RGB_MULT
+            )
+        elif self.burn_timer > 0:
+            self.image = self.original_image.copy()
+            self.image.fill(
+                (255, 140, 60),
+                special_flags=pygame.BLEND_RGB_MULT
+            )
+
+        surface.blit(image_to_draw, self.rect)
         self.draw_health_bar(surface)
 
-    def update(self, dt: float, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
+    def update(self, dt: float, obstacles=None, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
         """Méthode de mise à jour générale à surcharger par les ennemis concrets."""
+        self.update_slow(dt)
+        self.update_burn(dt)
         self.update_visuals(dt)

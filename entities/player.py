@@ -1,4 +1,5 @@
 import pygame
+from math import floor
 from core.asset_manager import AssetManager
 from core.constants import (
     COLOR_HITBOX_DEBUG,
@@ -6,13 +7,15 @@ from core.constants import (
     DEBUG_MODE,
     JOYSTICK_DEADZONE,
     PLAYER_BASE_SPEED,
-    PLAYER_FIRE_RATE,
-    PLAYER_HITBOX_SCALE,
-    PLAYER_MAX_HP,
-    PLAYER_PROJECTILE_DAMAGE,
-    PLAYER_PROJECTILE_SPEED,
+    PLAYER_BASE_FIRE_RATE,
+    PLAYER_BASE_HITBOX_SCALE,
+    PLAYER_BASE_MAX_HP,
+    PLAYER_BASE_PROJECTILE_DAMAGE,
+    PLAYER_BASE_PROJECTILE_SPEED,
+    PLAYER_BASE_PROJECTILE_SIZE,
+    PLAYER_BASE_PROJECTILE_SHIELD
 )
-from entities.projectiles.player_projectiles.base import Base
+from entities.projectiles.player_projectiles import ATTACK_TYPE_CLASS
 from systems.collision_system import CollisionSystem
 
 
@@ -38,16 +41,31 @@ class Player(pygame.sprite.Sprite):
                 self.joystick = None
 
         # Caractéristiques
+        self.velocity = pygame.Vector2(0, 0)
         self.base_speed = PLAYER_BASE_SPEED
         self.speed = self.base_speed
-        self.max_hp = PLAYER_MAX_HP
+        self.base_max_hp = PLAYER_BASE_MAX_HP
+        self.max_hp = self.base_max_hp
         self.hp = self.max_hp
-        self.damage = PLAYER_PROJECTILE_DAMAGE
+        self.base_damage = PLAYER_BASE_PROJECTILE_DAMAGE
+        self.damage = self.base_damage
+        self.base_fire_rate = PLAYER_BASE_FIRE_RATE
+        self.fire_rate = self.base_fire_rate
+        self.base_proj_size = PLAYER_BASE_PROJECTILE_SIZE
+        self.proj_size = self.base_proj_size
+        self.base_shield = PLAYER_BASE_PROJECTILE_SHIELD
+        self.shield = self.base_shield
         
-        self.fire_rate = PLAYER_FIRE_RATE
         self.shoot_cooldown = 1.0 / self.fire_rate
         self.shoot_timer = 0.0
         self.dead = False
+
+
+        self.upgrades: dict[str, int] = {}
+        self.upgrades_data = {}
+
+        self.attack_type = ATTACK_TYPE_CLASS["Base"]
+        self.shot_pattern = self._get_shot_pattern()
 
         # Invulnérabilité temporaire après dégâts
         self.invulnerable_timer = 0.0
@@ -80,8 +98,49 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.play_surface.get_rect().center)
 
         self.hitbox = self.rect.copy()
-        self.hitbox.scale_by_ip(PLAYER_HITBOX_SCALE)
+        self.hitbox.scale_by_ip(PLAYER_BASE_HITBOX_SCALE)
         self.sync_hitbox()
+
+
+    def _get_shot_pattern(self) -> list[tuple[float, float]]:
+        """Renvoie les couples (angle en degrés, décalage latéral)."""
+        level = min(self.upgrades.get("multi_shot", 0), 4)
+
+        patterns = {
+            0: [(0, 0)],
+            1: [(0, -1), (0, 1)],
+            2: [(0, 0), (-45, 0), (45, 0)],
+            3: [(0, 0), (-45, 0), (45, 0), (180, 0)],
+            4: [(0, -1), (0, 1), (-45, 0), (45, 0), (180, 0)],
+        }
+
+        return patterns[level]
+
+    def _spawn_projectile(self, position: pygame.Vector2, direction: pygame.Vector2, target_group: pygame.sprite.Group) -> None:
+        """Crée un projectile et l'ajoute aux groupes nécessaires."""
+        projectile = self.attack_type(
+            area=self.play_area,
+            pos=position,
+            direction=direction,
+            owner="player",
+            speed=PLAYER_BASE_PROJECTILE_SPEED,
+            damage=100000000 if DEBUG_MODE else self.damage,
+            img_scale=self.proj_size,
+            source_player=self
+        )
+
+        target_group.add(projectile)
+        self.player_projectiles.add(projectile)
+
+    def _get_shot_trajectory(self,angle: float,lateral_offset: float) -> tuple[pygame.Vector2, pygame.Vector2]:
+        """Calcule la position de départ et la direction d'un tir."""
+        forward = self.look_direction.normalize()
+        side = forward.rotate(90)
+        spacing = 12 * self.proj_size
+        position = (pygame.Vector2(self.rect.center) + side * lateral_offset * spacing)
+        direction = forward.rotate(angle)
+
+        return position, direction
 
     def sync_hitbox(self):
         """Synchronise précisément la boîte de collision sur les pieds du personnage."""
@@ -148,18 +207,24 @@ class Player(pygame.sprite.Sprite):
 
         self.sync_hitbox()
 
-    def take_damage(self, amount: int):
+    def take_damage(self, amount: int, debug: bool):
         """Inflige des dégâts avec délai d'invulnérabilité."""
-        if self.dead or self.invulnerable_timer > 0:
+        if debug or self.invulnerable_timer > 0:
             return
 
-        self.hp -= amount
+        self.hp -= floor(amount * (1 - self.shield))
         self.invulnerable_timer = self.invulnerable_duration
 
         if self.hp <= 0:
             self.hp = 0
             self.dead = True
             self.state = "death"
+
+    def life_steal(self, amount: float) -> None:
+        """Restaure une proportion des PV maximum."""
+        if self.dead:
+            return
+        self.hp = round(min(self.max_hp, self.hp + self.damage * amount))
 
     def shoot(self, target_group: pygame.sprite.Group):
         """Crée un projectile dirigé selon l'orientation du joueur."""
@@ -169,18 +234,10 @@ class Player(pygame.sprite.Sprite):
         self.state = "cast"
         self.cast_timer = self.cast_duration
 
-        projectile = Base(
-            screen=self.play_surface,
-            pos=self.rect.center,
-            direction=self.look_direction,
-            owner="player",
-            speed=PLAYER_PROJECTILE_SPEED,
-            damage=self.damage
-        )
+        for angle, lateral_offset in self.shot_pattern:
+            position, direction = self._get_shot_trajectory(angle, lateral_offset)
+            self._spawn_projectile(position, direction, target_group)
 
-        print(self.damage)
-        target_group.add(projectile)
-        self.player_projectiles.add(projectile)
 
     def get_movement_vector(self, keys) -> pygame.Vector2:
         """Gère les entrées clavier (AZERTY ZQSD + QWERTY WASD + Flèches) et manette."""
@@ -231,6 +288,59 @@ class Player(pygame.sprite.Sprite):
         else:
             self.sprite_direction = "down" if move_dir.y > 0 else "up"
 
+
+    def _change_attack_type(self, upgrade_id) -> None:
+        attack_type: str = self.upgrades_data[upgrade_id]["attack_type"]
+        self.attack_type = ATTACK_TYPE_CLASS[attack_type]
+
+
+    def _recalculate_stats(self) -> None:
+        """Recalcule les stats depuis les valeurs de base."""
+        self.speed = self.base_speed
+        self.max_hp = self.base_max_hp
+        self.damage = self.base_damage
+        self.fire_rate = self.base_fire_rate
+        self.proj_size = self.base_proj_size
+
+        for upgrade_id, count in self.upgrades.items():
+            data = self.upgrades_data[upgrade_id]
+            
+            if data["type"] != "stat":
+                continue
+            
+            stat = data["stat"]
+            bonus = data["bonus"] * count
+
+            current_value = getattr(self, stat)
+            setattr(self, stat, current_value + bonus)
+
+        self.shoot_cooldown = 1.0 / self.fire_rate
+        self.hp = min(self.hp, self.max_hp)
+
+
+    def _handle_consumable(self, upgrade_id: str) -> None:
+        """Applique l'effet d'un consommable."""
+        if upgrade_id == "heal":
+            bonus = self.upgrades_data[upgrade_id]["bonus"]
+            self.hp = round(min(self.max_hp, self.hp + self.max_hp * bonus))
+
+
+    def add_upgrade(self, upgrade_id: str, upgrade_data: dict) -> None:
+        """Ajoute un upgrade et actualise les stats."""
+        self.upgrades_data[upgrade_id] = upgrade_data.copy()
+        self.upgrades[upgrade_id] = self.upgrades.get(upgrade_id, 0) + 1
+        upgrade_type = self.upgrades_data[upgrade_id]["type"]
+        if upgrade_type == "stat":
+            self._recalculate_stats()
+        elif upgrade_type == "consumable":
+            self._handle_consumable(upgrade_id)
+        elif upgrade_type == "attack":
+            self._change_attack_type(upgrade_id)
+        elif upgrade_type == "spell":
+            pass
+        elif upgrade_type == "pattern":
+            self.shot_pattern = self._get_shot_pattern()
+
     def handle_inputs(self, dt: float, obstacles: pygame.sprite.Group, global_projectiles: pygame.sprite.Group):
         """Gère les entrées utilisateur pour le déplacement et l'attaque."""
         keys = pygame.key.get_pressed()
@@ -246,13 +356,17 @@ class Player(pygame.sprite.Sprite):
         move_dir = self.get_movement_vector(keys)
 
         # Ralentissement lors du tir continu
-        self.speed = self.base_speed * 0.8 if shoot_pressed else self.base_speed
+        move_speed = self.speed * 0.8 if shoot_pressed else self.speed
+
+        target_velocity = move_dir * move_speed
+        factor = min(1.0, 30 * dt)
+        self.velocity += (target_velocity - self.velocity) * factor
+
+        dx = self.velocity.x * dt
+        dy = self.velocity.y * dt
+        self.move(dx, dy, obstacles)
 
         if move_dir.length_squared() > 0:
-            dx = move_dir.x * self.speed * dt
-            dy = move_dir.y * self.speed * dt
-            self.move(dx, dy, obstacles)
-
             if not shoot_pressed:
                 self.update_look_direction(move_dir)
 
@@ -280,11 +394,6 @@ class Player(pygame.sprite.Sprite):
 
         if not self.dead:
             self.handle_inputs(dt, obstacles, global_projectiles)
-
-        if DEBUG_MODE:
-            self.damage = 100000000
-        else:
-            self.damage = PLAYER_PROJECTILE_DAMAGE
 
         self.animate(dt)
 

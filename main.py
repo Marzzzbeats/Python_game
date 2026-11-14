@@ -1,3 +1,7 @@
+import os
+os.environ["PYGAME_BLEND_ALPHA_SDL2"] = "1"
+
+
 import pygame
 from core.constants import DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH
 from game import Game
