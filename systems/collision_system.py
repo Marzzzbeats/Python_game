@@ -1,4 +1,5 @@
 import pygame
+from core.constants import DEBUG_MODE
 
 
 def collide_hitbox(a: pygame.sprite.Sprite, b: pygame.sprite.Sprite) -> bool:
@@ -23,19 +24,31 @@ class CollisionSystem:
     """Système dédié à la détection et résolution de toutes les collisions du jeu."""
 
     @staticmethod
-    def handle_player_projectiles_vs_enemies(player_projectiles: pygame.sprite.Group, enemies: pygame.sprite.Group):
+    def handle_player_projectiles_vs_enemies(player_projectiles: pygame.sprite.Group, enemies: pygame.sprite.Group, effects: pygame.sprite.Group):
         """Gère l'impact des projectiles du joueur contre les ennemis."""
         hits = pygame.sprite.groupcollide(
             player_projectiles,
             enemies,
-            dokilla=True,
+            dokilla=False,
             dokillb=False,
             collided=collide_hitbox
         )
 
         for projectile, enemies_hit in hits.items():
             for enemy in enemies_hit:
+                if enemy in projectile.hit_enemies:
+                    continue
+
+                projectile.hit_enemies.add(enemy)
                 enemy.take_damage(getattr(projectile, "damage", 1))
+                projectile.on_hit(enemy, enemies, effects)
+
+                if projectile.remaining_pierces > 0:
+                    projectile.remaining_pierces -= 1
+                else:
+                    projectile.kill()
+                    projectile._reset_hit_enemies()
+                    break
 
     @staticmethod
     def handle_enemy_projectiles_vs_player(enemy_projectiles: pygame.sprite.Group, player):
@@ -51,7 +64,7 @@ class CollisionSystem:
         )
 
         for projectile in hits:
-            player.take_damage(getattr(projectile, "damage", 1))
+            player.take_damage(getattr(projectile, "damage", 1), DEBUG_MODE)
 
     @staticmethod
     def handle_projectiles_vs_obstacles(projectiles: pygame.sprite.Group, obstacles: pygame.sprite.Group):
@@ -80,7 +93,7 @@ class CollisionSystem:
         for enemy in hits:
             # Si l'ennemi inflige des dégâts de contact (ex: Gorehound)
             contact_damage = getattr(enemy, "contact_damage", 1)
-            player.take_damage(contact_damage)
+            player.take_damage(contact_damage, DEBUG_MODE)
 
     @staticmethod
     def check_obstacle_collision(hitbox: pygame.Rect, obstacles: pygame.sprite.Group) -> bool:

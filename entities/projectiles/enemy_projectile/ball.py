@@ -8,20 +8,22 @@ class BallProjectile(Projectile):
 
     def __init__(
         self,
-        screen: pygame.Surface,
+        area: pygame.Rect,
         pos: tuple[float, float] | pygame.Vector2,
         direction: tuple[float, float] | pygame.Vector2,
+        owner: str,
         speed: float = 450,
         damage: int = 1
     ):
         image = AssetManager.get_image("assets/enemy_projectile/cinder_imp.png", scale_by=2.0)
 
         super().__init__(
-            play_surface=screen,
+            play_area=area,
             pos=pos,
             direction=direction,
             speed=speed,
             damage=damage,
             image=image,
+            owner=owner,
             hitbox_scale=0.7
         )
