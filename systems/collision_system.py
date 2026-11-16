@@ -35,15 +35,22 @@ class CollisionSystem:
         )
 
         for projectile, enemies_hit in hits.items():
+            is_rotating_object: bool = getattr(projectile, "persistent", False)
             for enemy in enemies_hit:
-                if enemy in projectile.hit_enemies:
-                    continue
 
-                projectile.hit_enemies.add(enemy)
-                enemy.take_damage(getattr(projectile, "damage", 1))
+                if is_rotating_object:
+                    if enemy in projectile.hit_timers:
+                        continue
+                    projectile.hit_timers[enemy] = projectile.hit_cooldown
+                else:
+                    if enemy in projectile.hit_enemies:
+                        continue
+                    projectile.hit_enemies.add(enemy)
+
+                enemy.take_damage(projectile.damage)
                 projectile.on_hit(enemy, enemies, effects)
 
-                if projectile.remaining_pierces > 0:
+                if projectile.remaining_pierces > 0 or is_rotating_object:
                     projectile.remaining_pierces -= 1
                 else:
                     projectile.kill()

@@ -17,6 +17,7 @@ from core.constants import (
     PLAYER_BASE_SHARD_AMOUNT
 )
 from entities.projectiles.player_projectiles import ATTACK_TYPE_CLASS
+from entities.projectiles.player_projectiles.arcanic_crystal import ArcanicCrystal
 from systems.collision_system import CollisionSystem
 
 
@@ -405,17 +406,19 @@ class Player(pygame.sprite.Sprite):
             self.shoot_timer = self.shoot_cooldown
 
     def spawn_arcanic_crystal(self, target_group: pygame.sprite.Group) -> None:
-        for _ in range(self.shard_amount):
-            shard = self.attack_type(
+        for i in range(self.shard_amount):
+            shard = ArcanicCrystal(
                 area=self.play_area,
                 pos=self.hitbox.center,
                 direction=self.look_direction,
+                angle=360/self.shard_amount * i,
                 owner="player",
                 speed=PLAYER_BASE_PROJECTILE_SPEED,
-                damage=100000000 if DEBUG_MODE else self.damage,
+                damage=100000000 if DEBUG_MODE else self.damage//2,
                 img_scale=self.proj_size,
                 source_player=self
             )
+
 
             target_group.add(shard)
             self.player_projectiles.add(shard)
