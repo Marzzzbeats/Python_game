@@ -41,12 +41,25 @@
         "bonus": 0.05,
         "max_stacks": 1
     },
+    "arcanic_crystal": {
+        "type": "stat",
+        "name": "Eclat arcanique",
+        "stat": "shard_amount",
+        "bonus": 1,
+        "max_stacks": 1
+    },
     "heal": {
         "type" : "consumable",
         "name": "Soin instantané",
         "stat": "hp",
         "bonus": 0.2,
         "max_stacks": -1
+    },
+    "second_life" : {
+        "type": "consumable",
+        "name": "Phenix",
+        "description": "Une fois par partie, renaicer de vos cendres tels le phenix.",
+        "max_stacks": 1
     },
     "ice": {
         "type": "attack",

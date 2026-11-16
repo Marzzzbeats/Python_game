@@ -51,7 +51,7 @@ class Gameplay(Scene):
         self.reward_manager = RewardManager()
 
         # Joueur
-        self.player = Player(self.play_surface, self.play_area)
+        self.player = Player(self.play_surface, self.play_area, self.all_projectiles)
 
         # Gestionnaire de salles et progression
         self.room_manager = RoomManager("rooms.json")
@@ -114,7 +114,7 @@ class Gameplay(Scene):
             return
 
         # Mise à jour du joueur
-        self.player.update(dt, self.current_room.obstacles, self.all_projectiles)
+        self.player.update(dt, self.current_room.obstacles)
 
         # Mise à jour de la salle et des ennemis
         self.current_room.update(dt, self.player, self.all_projectiles, DEBUG_MODE)
