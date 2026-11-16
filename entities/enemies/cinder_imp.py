@@ -46,8 +46,8 @@ class CinderImp(Enemy):
         )
         projectile_group.add(projectile)
 
-    def update(self, dt: float, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
-        super().update(dt, player, play_area, projectile_group)
+    def update(self, dt: float, obstacles=None, player=None, play_area: pygame.Rect | None = None, projectile_group: pygame.sprite.Group | None = None):
+        super().update(dt, obstacles, player, play_area, projectile_group)
 
         if player is None or player.dead or self.is_dead:
             return
@@ -59,10 +59,10 @@ class CinderImp(Enemy):
         move_speed = self.speed * self.slow_multiplier
         if dist < self.preferred_distance - 60:
             # S'éloigne du joueur
-            self.update_position(-direction * move_speed * dt, play_area)
+            self.update_position(-direction * move_speed * dt, obstacles, play_area)
         elif dist > self.preferred_distance + 60:
             # Se rapproche prudemment
-            self.update_position(direction * (move_speed * 0.8) * dt, play_area)
+            self.update_position(direction * (move_speed * 0.8) * dt, obstacles ,play_area)
 
         # Rechargement et tir
         self.shoot_timer -= dt
