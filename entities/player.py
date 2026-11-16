@@ -207,6 +207,7 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, dx: float, dy: float, obstacles: pygame.sprite.Group):
         """Déplace le joueur avec glissement indépendant sur les axes X et Y contre les obstacles."""
+        self.sync_hitbox()
         if self.can_move_to(dx, dy, obstacles):
             self.rect.move_ip(dx, dy)
         elif self.can_move_to(dx, 0, obstacles):

@@ -14,7 +14,7 @@ class CircleProjectile(Projectile):
         speed: float = 200.0,
         damage: int = 1
     ):
-        image = AssetManager.get_image("assets/enemy_projectile/cinder_imp.png", scale_by=2.0)
+        image = AssetManager.get_image("assets/enemy_projectile/bloodwing.png", scale_by=2.0)
 
         super().__init__(
             play_area=play_area,
