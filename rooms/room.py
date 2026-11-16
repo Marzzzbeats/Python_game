@@ -88,9 +88,8 @@ class Room:
         """Renvoie toutes les thuiles libres"""
 
         free_tiles = []
-
-        for r in range(self.rows):
-            for c in range(self.columns):
+        for r in range(1, self.rows -1):  # le -1 pour empêcher le bord
+            for c in range(1, self.columns -1):  #pareil
                 # Évite les cases trop proches du centre (zone d'apparition du joueur), faudra surement adapter
                 is_near_center = (abs(c - self.columns // 2) <= 1 and abs(r - self.rows // 2) <= 1)
                 tile_char = self.layout[r][c] if r < len(self.layout) and c < len(self.layout[r]) else "."
