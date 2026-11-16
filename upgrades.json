@@ -46,7 +46,7 @@
         "name": "Eclat arcanique",
         "stat": "shard_amount",
         "bonus": 1,
-        "max_stacks": 1
+        "max_stacks": 4
     },
     "heal": {
         "type" : "consumable",

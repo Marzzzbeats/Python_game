@@ -242,7 +242,7 @@ class Player(pygame.sprite.Sprite):
         """Restaure une proportion des PV maximum."""
         if self.dead:
             return
-        self.hp = round(min(self.max_hp, self.hp + self.damage * amount))
+        self.hp = round(min(self.max_hp, self.hp + self.hp * amount))
 
     def shoot(self, target_group: pygame.sprite.Group):
         """Crée un projectile dirigé selon l'orientation du joueur."""
